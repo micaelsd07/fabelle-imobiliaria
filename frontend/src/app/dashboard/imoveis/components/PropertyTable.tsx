@@ -1,12 +1,13 @@
 'use client';
 
-import { Archive, Copy, Edit2, ExternalLink, Trash2 } from 'lucide-react';
+import { Archive, Copy, Edit2, Eye, ExternalLink, Trash2 } from 'lucide-react';
 import { getPropertyPhotos } from '@/components/PropertyImageCarousel';
 import type { Property } from './types';
 
 interface Props {
   items: Property[];
   loading: boolean;
+  onView: (p: Property) => void;
   onEdit: (p: Property) => void;
   onDuplicate: (id: string) => void;
   onArchive: (id: string) => void;
@@ -19,7 +20,7 @@ function statusClass(status: string) {
   return 'bg-red-500/10 text-red-500 border-red-500/20';
 }
 
-export function PropertyTable({ items, loading, onEdit, onDuplicate, onArchive, onDelete }: Props) {
+export function PropertyTable({ items, loading, onView, onEdit, onDuplicate, onArchive, onDelete }: Props) {
   if (loading) {
     return (
       <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
@@ -94,6 +95,9 @@ export function PropertyTable({ items, loading, onEdit, onDuplicate, onArchive, 
                     >
                       <ExternalLink className="h-4 w-4" />
                     </a>
+                    <button onClick={() => onView(prop)} className="p-2 border hover:bg-primary/10 rounded-lg text-muted-foreground hover:text-primary cursor-pointer" title="Ver detalhes (inclui locador)">
+                      <Eye className="h-4 w-4" />
+                    </button>
                     <button onClick={() => onEdit(prop)} className="p-2 border hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground cursor-pointer" title="Editar">
                       <Edit2 className="h-4 w-4" />
                     </button>

@@ -14,6 +14,7 @@ import type { Property } from './components/types';
 import { PropertyFilters, type Filters } from './components/PropertyFilters';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyForm } from './components/PropertyForm';
+import { PropertyDetails } from './components/PropertyDetails';
 
 export default function DashboardProperties() {
   const propertiesQuery = useProperties();
@@ -26,6 +27,7 @@ export default function DashboardProperties() {
   const [filters, setFilters] = useState<Filters>({ search: '', category: '', status: '' });
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Property | null>(null);
+  const [viewing, setViewing] = useState<Property | null>(null);
 
   const items = propertiesQuery.data ?? [];
 
@@ -84,6 +86,7 @@ export default function DashboardProperties() {
       <PropertyTable
         items={filtered}
         loading={propertiesQuery.isLoading}
+        onView={(p) => setViewing(p)}
         onEdit={openEdit}
         onDuplicate={(id) => duplicateMutation.mutate(id)}
         onArchive={(id) => archiveMutation.mutate(id)}
@@ -96,6 +99,8 @@ export default function DashboardProperties() {
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
       />
+
+      <PropertyDetails property={viewing} onClose={() => setViewing(null)} />
     </div>
   );
 }

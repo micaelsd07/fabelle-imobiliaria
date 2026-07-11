@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+﻿import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -8,8 +8,13 @@ export class ClientController {
   constructor(private clientService: ClientService) {}
 
   @Get()
-  async findAll(@Query('search') search?: string) {
-    return this.clientService.findAll(search);
+  async findAll(@Query('search') search?: string, @Query('type') type?: string) {
+    return this.clientService.findAll(search, type);
+  }
+
+  @Get('owners')
+  async findOwners(@Query('search') search?: string) {
+    return this.clientService.findOwners(search);
   }
 
   @Get(':id')

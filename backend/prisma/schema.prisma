@@ -79,7 +79,7 @@ model Property {
   broker         User?    @relation(fields: [brokerId], references: [id])
   featured       Boolean  @default(false)
 
-  // Dados do LOCADOR (proprietário do imóvel) — mantido no imóvel porque cada imóvel tem 1 dono
+  // Dados do LOCADOR (proprietÃ¡rio do imÃ³vel) â€” mantido no imÃ³vel porque cada imÃ³vel tem 1 dono
   ownerName        String?
   ownerCpf         String?
   ownerRg          String?
@@ -87,8 +87,8 @@ model Property {
   ownerEmail       String?
   ownerAddress     String?
   ownerProfession  String?
-  ownerCivilStatus String? // "Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"
-  // Dados do CÔNJUGE (só preenchidos se ownerCivilStatus for casado/união estável)
+  ownerCivilStatus String? // "Solteiro(a)", "Casado(a)", "Divorciado(a)", "ViÃºvo(a)", "UniÃ£o EstÃ¡vel"
+  // Dados do CÃ”NJUGE (sÃ³ preenchidos se ownerCivilStatus for casado/uniÃ£o estÃ¡vel)
   spouseName       String?
   spouseCpf        String?
   spousePhone      String?
@@ -117,6 +117,7 @@ model PropertyPhoto {
 
 model Client {
   id          String   @id @default(uuid())
+  clientType  String   @default("COMPRADOR") // COMPRADOR, LOCATARIO, INTERESSADO
   name        String
   cpf         String?  @unique
   rg          String?
@@ -222,3 +223,4 @@ model Transaction {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
+
