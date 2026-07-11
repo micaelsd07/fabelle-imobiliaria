@@ -1,0 +1,25 @@
+# Postgres local pra dev — mesma engine da produção (Neon).
+# Uso: `docker compose up -d` na raiz do projeto.
+# Depois em backend/.env: DATABASE_URL="postgresql://fabelle:fabelle@localhost:5432/fabelle?schema=public"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fabelle-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fabelle
+      POSTGRES_USER: fabelle
+      POSTGRES_PASSWORD: fabelle
+    ports:
+      - "5432:5432"
+    volumes:
+      - fabelle_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fabelle"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  fabelle_pg_data:

@@ -1,0 +1,13 @@
+{
+  "name": "fabelle-imobiliaria",
+  "version": "1.0.0",
+  "description": "Sistema CRM SaaS Premium Fabelle Imobiliária",
+  "scripts": {
+    "dev:backend": "npm run start:dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev": "npx -y concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "npm run build --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build": "npm run build:backend && npm run build:frontend"
+  }
+}

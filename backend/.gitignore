@@ -1,0 +1,22 @@
+node_modules
+dist
+coverage
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Prisma / SQLite (legado, não commitar)
+prisma/dev.db
+prisma/dev.db-journal
+prisma/_archive_sqlite_migrations
+/generated/prisma
+
+# Uploaded user files (mantém a pasta, ignora conteúdo)
+/uploads/*
+!/uploads/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

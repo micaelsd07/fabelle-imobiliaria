@@ -1,0 +1,27 @@
+# Deploy declarativo do backend no Render.
+# Como usar: no dashboard do Render → "New" → "Blueprint" → conectar o repo GitHub.
+# Ele lê este arquivo e cria os serviços automaticamente.
+#
+# IMPORTANTE: preencher DATABASE_URL, JWT_SECRET, FRONTEND_URL no painel
+# (essas são marcadas como sync:false pra não vazarem no repo).
+
+services:
+  - type: web
+    name: fabelle-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npx prisma generate && npm run build && npx prisma migrate deploy
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT é definido pelo Render automaticamente; main.ts respeita.
+      # ↓ ESSES DEVEM SER PREENCHIDOS NO PAINEL DO RENDER, NUNCA AQUI ↓
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

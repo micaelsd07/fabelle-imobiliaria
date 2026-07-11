@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  name           String
+  role           String // ADMIN, GERENTE, CORRETOR, RECEPCIONISTA, FINANCEIRO
+  creci          String? // CRECI number for brokers
+  phone          String?
+  whatsapp       String?
+  photo          String?
+  commissionRate Float    @default(0.0) // E.g., 5.0 for 5%
+  salesMeta      Float    @default(0.0) // Monthly quota in BRL
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  properties     Property[]
+  leads          Lead[]
+  visits         Visit[]
+  contracts      Contract[]
+  passwordResets PasswordReset[]
+}
+
+model PasswordReset {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Property {
+  id             String   @id @default(uuid())
+  code           String   @unique // Code like "IMOB-001"
+  title          String
+  description    String
+  price          Float
+  type           String // ALUGUEL, VENDA, AMBOS
+  category       String // CASA, APARTAMENTO, COBERTURA, TERRENO, CHACARA, SITIO, SALA_COMERCIAL, GALPAO, LOJA, PREDIO
+  status         String // DISPONIVEL, ALUGADO, VENDIDO, ARQUIVADO
+  areaTotal      Float
+  areaConstruida Float
+  bedrooms       Int
+  suites         Int
+  bathrooms      Int
+  garageSlots    Int
+  pool           Boolean  @default(false)
+  grill          Boolean  @default(false)
+  condoFee       Float?
+  iptu           Float?
+  address        String
+  zipCode        String
+  city           String
+  state          String
+  neighborhood   String
+  latitude       Float?
+  longitude      Float?
+  photos         String // Legacy CSV for compatibility; PropertyPhoto is the normalized source
+  videos         String?
+  tourVirtual    String?
+  features       String // Comma-separated features (e.g. "Piscina, Churrasqueira")
+  brokerId       String?
+  broker         User?    @relation(fields: [brokerId], references: [id])
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  photoItems PropertyPhoto[]
+
+  visits    Visit[]
+  contracts Contract[]
+}
+
+model PropertyPhoto {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  sortOrder  Int      @default(0)
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([propertyId, sortOrder])
+  @@index([propertyId])
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  cpf         String?  @unique
+  rg          String?
+  phone       String?
+  whatsapp    String?
+  email       String?  @unique
+  birthDate   String? // Date string formatted (e.g., "1990-01-01")
+  civilStatus String?
+  profession  String?
+  income      Float?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  notes       String?
+  preferences String? // Comma-separated or serialized preferences
+  photo       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leads     Lead[]
+  visits    Visit[]
+  contracts Contract[]
+}
+
+model Lead {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  whatsapp  String?
+  source    String // SITE, FACEBOOK, INSTAGRAM, GOOGLE, WHATSAPP, INDICACAO, OUTRO
+  status    String // NOVO, CONTATADO, VISITA_AGENDADA, PROPOSTA, NEGOCIACAO, GANHO, PERDIDO
+  notes     String?
+  brokerId  String?
+  broker    User?    @relation(fields: [brokerId], references: [id])
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  history LeadHistory[]
+}
+
+model LeadHistory {
+  id          String   @id @default(uuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type        String // ANNOTATION, TASK, CALL, EMAIL, WHATSAPP, STATUS_CHANGE
+  content     String
+  createdById String?
+  createdAt   DateTime @default(now())
+}
+
+model Visit {
+  id         String   @id @default(uuid())
+  dateTime   DateTime
+  status     String // AGENDADA, CONFIRMADA, REALIZADA, CANCELADA
+  notes      String?
+  brokerId   String
+  broker     User     @relation(fields: [brokerId], references: [id])
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id])
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Contract {
+  id              String   @id @default(uuid())
+  title           String
+  type            String // ALUGUEL, VENDA
+  status          String // RASCUNHO, ATIVO, VENCIDO, CANCELADO
+  value           Float
+  startDate       DateTime
+  endDate         DateTime
+  pdfUrl          String?
+  signatureStatus String // PENDENTE, ASSINADO
+  clientSignature String? // Base64 drawn signature or confirmation
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id])
+  brokerId        String?
+  broker          User?    @relation(fields: [brokerId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Transaction {
+  id            String    @id @default(uuid())
+  description   String
+  amount        Float
+  type          String // RECEITA, DESPESA
+  category      String // ALUGUEL, VENDA, COMISSAO, MARKETING, SALARIO, INFRAESTRUTURA, IMPOSTO, OUTRO
+  status        String // PENDENTE, PAGO, ATRASADO
+  dueDate       DateTime
+  paymentDate   DateTime?
+  paymentMethod String? // PIX, CARTAO, BOLETO, DINHEIRO
+  contractId    String?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
