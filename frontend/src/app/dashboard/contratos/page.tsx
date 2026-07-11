@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { api, absoluteUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { generateContractPDF } from './contract-pdf';
 import {
@@ -73,6 +73,8 @@ export default function DashboardContracts() {
   const [endDate, setEndDate] = useState('');
   const [clientId, setClientId] = useState('');
   const [propertyId, setPropertyId] = useState('');
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [signatureModalOpen, setSignatureModalOpen] = useState(false);
   const [signingContractId, setSigningContractId] = useState<string | null>(null);
@@ -83,17 +85,29 @@ export default function DashboardContracts() {
 
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
-      title, type,
-      value: parseFloat(value.toString()),
-      startDate, endDate, clientId, propertyId,
-      brokerId: user?.id,
-    };
+    setUploadingPdf(true);
     try {
+      let pdfUrl: string | null = null;
+      if (pdfFile) {
+        const uploaded = await api.uploadDocument(pdfFile);
+        pdfUrl = uploaded.url;
+      }
+      const payload = {
+        title, type,
+        value: parseFloat(value.toString()),
+        startDate, endDate, clientId, propertyId,
+        brokerId: user?.id,
+        ...(pdfUrl ? { pdfUrl, signatureStatus: 'ASSINADO', status: 'ATIVO' } : {}),
+      };
       await api.post('/contracts', payload);
       refresh();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
-    setCreateModalOpen(false);
+      setCreateModalOpen(false);
+      setPdfFile(null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.');
+    } finally {
+      setUploadingPdf(false);
+    }
   };
 
   const handleDeleteContract = async (id: string) => {
@@ -233,13 +247,25 @@ export default function DashboardContracts() {
                             Concluído
                           </button>
                         )}
-                        <button
-                          onClick={() => generateContractPDF(c)}
-                          className="p-1.5 border hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
-                          title="Baixar PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
+                        {c.pdfUrl ? (
+                          <a
+                            href={absoluteUrl(c.pdfUrl)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 border hover:bg-primary/10 text-primary rounded-lg cursor-pointer"
+                            title="Abrir contrato PDF"
+                          >
+                            <Download className="h-4 w-4" />
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => generateContractPDF(c)}
+                            className="p-1.5 border hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
+                            title="Gerar PDF do sistema"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteContract(c.id)}
                           className="p-1.5 border hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg cursor-pointer"
@@ -368,19 +394,56 @@ export default function DashboardContracts() {
                 </select>
               </div>
 
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground/80 uppercase">Anexar PDF do contrato (opcional)</label>
+                <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 flex items-center gap-3">
+                  <input
+                    id="contract-pdf-input"
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                  />
+                  <label
+                    htmlFor="contract-pdf-input"
+                    className="bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-wider cursor-pointer hover:bg-primary/95"
+                  >
+                    Escolher PDF
+                  </label>
+                  <span className="text-[11px] text-muted-foreground truncate flex-1">
+                    {pdfFile ? pdfFile.name : 'Nenhum arquivo selecionado (até 20 MB)'}
+                  </span>
+                  {pdfFile && (
+                    <button
+                      type="button"
+                      onClick={() => setPdfFile(null)}
+                      className="text-red-500 hover:text-red-700 text-lg leading-none"
+                      title="Remover PDF"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Se anexar um PDF, o contrato já entra como <strong>ATIVO/ASSINADO</strong>. Caso contrário, elabora minuta em branco.
+                </p>
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <button
                   type="button"
                   onClick={() => setCreateModalOpen(false)}
                   className="border px-4 py-2 rounded-xl hover:bg-secondary cursor-pointer"
+                  disabled={uploadingPdf}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-primary hover:bg-primary/95 text-white font-bold px-6 py-2 rounded-xl shadow cursor-pointer"
+                  disabled={uploadingPdf}
+                  className="bg-primary hover:bg-primary/95 text-white font-bold px-6 py-2 rounded-xl shadow cursor-pointer disabled:opacity-60"
                 >
-                  Confirmar Elaboração
+                  {uploadingPdf ? 'Enviando…' : 'Confirmar Elaboração'}
                 </button>
               </div>
             </form>

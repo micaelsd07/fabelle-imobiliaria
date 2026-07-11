@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Car, ImagePlus, Sparkles, UploadCloud, X } from 'lucide-react';
+import { Car, ImagePlus, Sparkles, UploadCloud, User, X } from 'lucide-react';
 import { api, absoluteUrl } from '@/lib/api';
 import type { Property } from './types';
+import { CIVIL_STATUS_OPTIONS, SPOUSE_REQUIRED_STATUSES } from './types';
 
 interface Props {
   isOpen: boolean;
@@ -48,6 +49,21 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Locador (dono do imóvel)
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerCpf, setOwnerCpf] = useState('');
+  const [ownerRg, setOwnerRg] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerAddress, setOwnerAddress] = useState('');
+  const [ownerProfession, setOwnerProfession] = useState('');
+  const [ownerCivilStatus, setOwnerCivilStatus] = useState('Solteiro(a)');
+  const [spouseName, setSpouseName] = useState('');
+  const [spouseCpf, setSpouseCpf] = useState('');
+  const [spousePhone, setSpousePhone] = useState('');
+
+  const spouseRequired = SPOUSE_REQUIRED_STATUSES.includes(ownerCivilStatus);
+
   useEffect(() => {
     if (!isOpen) return;
     if (property) {
@@ -72,6 +88,17 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
       setFeatures(removeCoveredGarage(property.features));
       setFeatured(property.featured);
       setSelectedImages(getExistingImages(property));
+      setOwnerName(property.ownerName ?? '');
+      setOwnerCpf(property.ownerCpf ?? '');
+      setOwnerRg(property.ownerRg ?? '');
+      setOwnerPhone(property.ownerPhone ?? '');
+      setOwnerEmail(property.ownerEmail ?? '');
+      setOwnerAddress(property.ownerAddress ?? '');
+      setOwnerProfession(property.ownerProfession ?? '');
+      setOwnerCivilStatus(property.ownerCivilStatus ?? 'Solteiro(a)');
+      setSpouseName(property.spouseName ?? '');
+      setSpouseCpf(property.spouseCpf ?? '');
+      setSpousePhone(property.spousePhone ?? '');
     } else {
       setTitle('');
       setDescription('');
@@ -94,6 +121,17 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
       setFeatures('Varanda, Piscina, Portaria 24h');
       setFeatured(false);
       setSelectedImages([DEFAULT_COVER]);
+      setOwnerName('');
+      setOwnerCpf('');
+      setOwnerRg('');
+      setOwnerPhone('');
+      setOwnerEmail('');
+      setOwnerAddress('');
+      setOwnerProfession('');
+      setOwnerCivilStatus('Solteiro(a)');
+      setSpouseName('');
+      setSpouseCpf('');
+      setSpousePhone('');
     }
   }, [property, isOpen]);
 
@@ -159,6 +197,19 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
       photos: selectedImages,
       features: finalFeatures.join(', '),
       featured,
+
+      ownerName: ownerName || null,
+      ownerCpf: ownerCpf || null,
+      ownerRg: ownerRg || null,
+      ownerPhone: ownerPhone || null,
+      ownerEmail: ownerEmail || null,
+      ownerAddress: ownerAddress || null,
+      ownerProfession: ownerProfession || null,
+      ownerCivilStatus,
+      // Só envia cônjuge se estado civil for casado/união estável, caso contrário zera
+      spouseName: spouseRequired ? spouseName || null : null,
+      spouseCpf: spouseRequired ? spouseCpf || null : null,
+      spousePhone: spouseRequired ? spousePhone || null : null,
     });
   };
 
@@ -237,7 +288,68 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
           </section>
 
           <section className="space-y-4">
-            <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Endereco e descricao</h4>
+            <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              Locador (proprietário do imóvel)
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Field label="Nome completo" className="md:col-span-2">
+                <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Nome do proprietário" className="modal-input" />
+              </Field>
+              <Field label="Estado civil">
+                <select value={ownerCivilStatus} onChange={(e) => setOwnerCivilStatus(e.target.value)} className="modal-input cursor-pointer">
+                  {CIVIL_STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Field label="CPF">
+                <input type="text" value={ownerCpf} onChange={(e) => setOwnerCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+              </Field>
+              <Field label="RG">
+                <input type="text" value={ownerRg} onChange={(e) => setOwnerRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+              </Field>
+              <Field label="Telefone / WhatsApp">
+                <input type="text" value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} placeholder="(00) 00000-0000" className="modal-input" />
+              </Field>
+              <Field label="E-mail">
+                <input type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="proprietario@email.com" className="modal-input" />
+              </Field>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Endereço do locador">
+                <input type="text" value={ownerAddress} onChange={(e) => setOwnerAddress(e.target.value)} placeholder="Rua, número, cidade" className="modal-input" />
+              </Field>
+              <Field label="Profissão">
+                <input type="text" value={ownerProfession} onChange={(e) => setOwnerProfession(e.target.value)} placeholder="Ex: Empresário" className="modal-input" />
+              </Field>
+            </div>
+
+            {spouseRequired && (
+              <div className="mt-2 rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-4">
+                <h5 className="text-[10px] font-black uppercase tracking-wider text-primary flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" />
+                  Dados do cônjuge
+                </h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Field label="Nome do cônjuge">
+                    <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
+                  </Field>
+                  <Field label="CPF do cônjuge">
+                    <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                  </Field>
+                  <Field label="Telefone do cônjuge">
+                    <input type="text" value={spousePhone} onChange={(e) => setSpousePhone(e.target.value)} placeholder="(00) 00000-0000" className="modal-input" />
+                  </Field>
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-4">
+            <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Endereço do imóvel e descrição</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Endereco Completo" className="md:col-span-2">
                 <input type="text" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, numero, complemento" className="modal-input" />

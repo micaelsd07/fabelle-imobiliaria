@@ -68,7 +68,30 @@ function safeJson(text: string): unknown {
   try { return JSON.parse(text); } catch { return text; }
 }
 
-async function uploadImages(files: File[]): Promise<{ files: Array<{ url: string; originalName: string; size: number; mimeType: string }> }> {
+export type UploadedFile = { url: string; originalName: string; size: number; mimeType: string };
+
+async function uploadDocument(file: File): Promise<UploadedFile> {
+  const form = new FormData();
+  form.append('file', file);
+  const token = getToken();
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/upload/document`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+  } catch {
+    throw new ApiError(0, 'Falha ao enviar documento.');
+  }
+  if (res.status === 401 && onUnauthorized) onUnauthorized();
+  const text = await res.text();
+  const data = text ? safeJson(text) : null;
+  if (!res.ok) throw new ApiError(res.status, getErrorMessage(data, res.status), data);
+  return data as UploadedFile;
+}
+
+async function uploadImages(files: File[]): Promise<{ files: UploadedFile[] }> {
   if (!files.length) return { files: [] };
   const form = new FormData();
   for (const f of files) form.append('files', f);
@@ -105,4 +128,5 @@ export const api = {
   patch:<T>(path: string, body?: unknown)  => request<T>('PATCH', path, body),
   del:  <T>(path: string)                  => request<T>('DELETE', path),
   uploadImages,
+  uploadDocument,
 };
