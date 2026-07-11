@@ -38,7 +38,7 @@ export default function Home() {
 
   // Fetch properties from backend
   useEffect(() => {
-    fetch('http://localhost:3001/properties')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/properties`)
       .then((res) => {
         if (!res.ok) throw new Error('API offline');
         return res.json();

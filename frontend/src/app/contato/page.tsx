@@ -18,7 +18,7 @@ export default function ContactPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3001/leads', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

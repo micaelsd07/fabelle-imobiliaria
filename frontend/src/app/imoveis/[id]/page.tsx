@@ -280,7 +280,7 @@ export default function PropertyDetail() {
     if (!id) return;
     setLoading(true);
 
-    fetch(`http://localhost:3001/properties/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/properties/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error('Not found');
         return res.json();
@@ -307,7 +307,7 @@ export default function PropertyDetail() {
     setSubmittingLead(true);
 
     try {
-      const res = await fetch('http://localhost:3001/leads', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/leads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
