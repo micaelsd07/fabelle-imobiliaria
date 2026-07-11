@@ -95,28 +95,28 @@ export default function DashboardOverview() {
       value: stats.financial.monthlyRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
       icon: DollarSign,
       color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-      description: `${stats.financial.pendingPaymentsCount} cobranÃ§as pendentes`,
+      description: `${stats.financial.pendingPaymentsCount} cobranças pendentes`,
     },
     {
-      title: 'Total de ImÃ³veis',
+      title: 'Total de Imóveis',
       value: stats.properties.total,
       icon: Building2,
       color: 'bg-primary/10 text-primary border-primary/20',
-      description: `${stats.properties.available} disponÃ­veis para comercializaÃ§Ã£o`,
+      description: `${stats.properties.available} disponíveis para comercialização`,
     },
     {
       title: 'Clientes Ativos',
       value: stats.clients,
       icon: Users,
       color: 'bg-violet-500/10 text-violet-500 border-violet-500/20',
-      description: `${stats.brokers} corretores responsÃ¡veis`,
+      description: `${stats.brokers} corretores responsáveis`,
     },
     {
       title: 'Visitas Pendentes',
       value: stats.upcomingVisits,
       icon: Calendar,
       color: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-      description: 'PrÃ³ximas visitas agendadas',
+      description: 'Próximas visitas agendadas',
     },
   ];
 
@@ -125,9 +125,9 @@ export default function DashboardOverview() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">VisÃ£o Geral</h1>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Visão Geral</h1>
           <p className="text-sm text-muted-foreground font-semibold">
-            Bem-vindo ao painel corporativo da Fabelle ImobiliÃ¡ria.
+            Bem-vindo ao painel corporativo da Fabelle Imobiliária.
           </p>
         </div>
         <div className="flex gap-2">
@@ -165,7 +165,7 @@ export default function DashboardOverview() {
               <h3 className="font-extrabold text-lg text-foreground flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" /> Desempenho Financeiro
               </h3>
-              <p className="text-xs text-muted-foreground font-medium">Comparativo de entradas e saÃ­das nos Ãºltimos meses</p>
+              <p className="text-xs text-muted-foreground font-medium">Comparativo de entradas e saídas nos últimos meses</p>
             </div>
           </div>
           <div className="h-80 w-full">
@@ -193,7 +193,7 @@ export default function DashboardOverview() {
               <h3 className="font-extrabold text-lg text-foreground flex items-center gap-2">
                 <Compass className="h-5 w-5 text-primary" /> Origem dos Leads
               </h3>
-              <p className="text-xs text-muted-foreground font-medium">Canais de captaÃ§Ã£o de clientes</p>
+              <p className="text-xs text-muted-foreground font-medium">Canais de captação de clientes</p>
             </div>
           </div>
           <div className="h-60 w-full relative flex items-center justify-center">
@@ -250,7 +250,7 @@ export default function DashboardOverview() {
                   <th className="pb-3">Nome</th>
                   <th className="pb-3">Origem</th>
                   <th className="pb-3">Status</th>
-                  <th className="pb-3 text-right">ResponsÃ¡vel</th>
+                  <th className="pb-3 text-right">Responsável</th>
                 </tr>
               </thead>
               <tbody className="divide-y font-semibold">
@@ -275,7 +275,7 @@ export default function DashboardOverview() {
                       </span>
                     </td>
                     <td className="py-3 text-right text-muted-foreground">
-                      {lead.broker?.name || 'NÃ£o atribuÃ­do'}
+                      {lead.broker?.name || 'Não atribuído'}
                     </td>
                   </tr>
                 ))}
@@ -288,18 +288,18 @@ export default function DashboardOverview() {
         <div className="bg-card border rounded-2xl p-6 shadow-sm flex flex-col gap-4">
           <div className="flex justify-between items-center border-b pb-4">
             <div>
-              <h3 className="font-extrabold text-base text-foreground">Mapa de ImÃ³veis Ativos</h3>
-              <p className="text-[11px] text-muted-foreground font-medium mt-0.5">GeolocalizaÃ§Ã£o fÃ­sica das propriedades cadastradas</p>
+              <h3 className="font-extrabold text-base text-foreground">Mapa de Imóveis Ativos</h3>
+              <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Geolocalização física das propriedades cadastradas</p>
             </div>
             <Link href="/dashboard/imoveis" className="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
-              Ver ImÃ³veis <ArrowRight className="h-3.5 w-3.5" />
+              Ver Imóveis <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <div className="h-64 w-full border rounded-xl overflow-hidden shadow-xs">
             <iframe
               src="https://www.openstreetmap.org/export/embed.html?bbox=-46.72%2C-23.60%2C-46.62%2C-23.54&layer=mapnik&marker=-23.5639%2C-46.6627"
               className="w-full h-full border-none"
-              title="VisÃ£o Geral do Mapa"
+              title="Visão Geral do Mapa"
             />
           </div>
         </div>

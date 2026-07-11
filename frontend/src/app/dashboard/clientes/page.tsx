@@ -45,7 +45,7 @@ const MOCK_CLIENTS: Client[] = (() => {
   const mockClients = [
           {
             id: '1',
-            name: 'JoÃ£o Pedro de Oliveira',
+            name: 'João Pedro de Oliveira',
             cpf: '123.456.789-00',
             phone: '(11) 98111-2222',
             whatsapp: '(11) 98111-2222',
@@ -54,14 +54,14 @@ const MOCK_CLIENTS: Client[] = (() => {
             profession: 'Engenheiro de Software',
             income: 18000,
             address: 'Av. Paulista, 1000',
-            city: 'SÃ£o Paulo',
+            city: 'São Paulo',
             state: 'SP',
             zipCode: '01310-100',
             notes: 'Procura apartamento com 3 quartos em Pinheiros.',
             preferences: 'APARTAMENTO, 3 quartos, Pinheiros',
             createdAt: new Date().toISOString(),
             contracts: [
-              { id: 'c1', title: 'LocaÃ§Ã£o Residencial Pinheiros', type: 'ALUGUEL', value: 7500, status: 'ATIVO', property: { code: 'FAB-002' } },
+              { id: 'c1', title: 'Locação Residencial Pinheiros', type: 'ALUGUEL', value: 7500, status: 'ATIVO', property: { code: 'FAB-002' } },
             ],
             visits: [],
           },
@@ -73,10 +73,10 @@ const MOCK_CLIENTS: Client[] = (() => {
             whatsapp: '(11) 98222-3333',
             email: 'mariana.costa@email.com',
             civilStatus: 'Solteira',
-            profession: 'MÃ©dica Cardiologista',
+            profession: 'Médica Cardiologista',
             income: 25000,
             address: 'Rua Bela Cintra, 450',
-            city: 'SÃ£o Paulo',
+            city: 'São Paulo',
             state: 'SP',
             zipCode: '01415-000',
             notes: 'Interessada em coberturas ou apartamentos modernos com piscina.',
@@ -161,7 +161,7 @@ export default function DashboardClients() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Clientes CRM</h1>
-          <p className="text-sm text-muted-foreground font-semibold">Base de dados de locatÃ¡rios, compradores e proprietÃ¡rios.</p>
+          <p className="text-sm text-muted-foreground font-semibold">Base de dados de locatários, compradores e proprietários.</p>
         </div>
         <button
           onClick={handleOpenCreate}
@@ -201,7 +201,7 @@ export default function DashboardClients() {
                     <tr className="border-b bg-secondary/35 text-muted-foreground uppercase tracking-wider font-bold">
                       <th className="p-4">Cliente</th>
                       <th className="p-4">CPF / Contato</th>
-                      <th className="p-4">ProfissÃ£o</th>
+                      <th className="p-4">Profissão</th>
                       <th className="p-4">Cadastrado</th>
                     </tr>
                   </thead>
@@ -261,15 +261,15 @@ export default function DashboardClients() {
               <div className="space-y-3.5 text-xs font-semibold text-foreground/80">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-primary shrink-0" />
-                  <span>{selectedClient.email || 'NÃ£o informado'}</span>
+                  <span>{selectedClient.email || 'Não informado'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-primary shrink-0" />
-                  <span>{selectedClient.phone || 'NÃ£o informado'}</span>
+                  <span>{selectedClient.phone || 'Não informado'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-primary shrink-0" />
-                  <span>{selectedClient.profession || 'ProfissÃ£o nÃ£o informada'}</span>
+                  <span>{selectedClient.profession || 'Profissão não informada'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-primary shrink-0" />
@@ -280,7 +280,7 @@ export default function DashboardClients() {
               {/* Preferences */}
               {selectedClient.preferences && (
                 <div className="space-y-1.5 border-t pt-4">
-                  <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wide">PreferÃªncias ImÃ³veis</h4>
+                  <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wide">Preferências Imóveis</h4>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                     {selectedClient.preferences}
                   </p>
@@ -290,7 +290,7 @@ export default function DashboardClients() {
               {/* Notes */}
               {selectedClient.notes && (
                 <div className="space-y-1.5 border-t pt-4">
-                  <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wide">ObservaÃ§Ãµes do Corretor</h4>
+                  <h4 className="text-xs font-extrabold text-foreground uppercase tracking-wide">Observações do Corretor</h4>
                   <p className="text-[11px] text-muted-foreground leading-relaxed italic">
                     "{selectedClient.notes}"
                   </p>
@@ -308,7 +308,7 @@ export default function DashboardClients() {
                       <div key={c.id} className="p-3 border rounded-xl bg-secondary/15 flex justify-between items-center text-xs">
                         <div>
                           <span className="font-extrabold text-foreground block">{c.title}</span>
-                          <span className="text-[9px] text-muted-foreground font-medium uppercase">{c.type} â€¢ {c.property.code}</span>
+                          <span className="text-[9px] text-muted-foreground font-medium uppercase">{c.type} ”¢ {c.property.code}</span>
                         </div>
                         <span className="font-black text-primary">
                           {c.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

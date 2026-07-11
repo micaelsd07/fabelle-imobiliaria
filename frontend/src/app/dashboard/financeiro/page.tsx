@@ -39,9 +39,9 @@ interface FinancialMetrics {
 }
 
 const MOCK_TXS: Transaction[] = [
-  { id: '1', description: 'LocaÃ§Ã£o residencial Pinheiros FAB-002', amount: 7500, type: 'RECEITA', category: 'ALUGUEL', status: 'PAGO', dueDate: new Date().toISOString(), paymentDate: new Date().toISOString(), paymentMethod: 'PIX' },
-  { id: '2', description: 'Taxa Administrativa Contrato LocaÃ§Ã£o', amount: 450, type: 'RECEITA', category: 'OUTRO', status: 'ATRASADO', dueDate: new Date().toISOString() },
-  { id: '3', description: 'ComissÃ£o Corretor Rodrigo Silva - FAB-001', amount: 12000, type: 'DESPESA', category: 'COMISSAO', status: 'PENDENTE', dueDate: new Date().toISOString() },
+  { id: '1', description: 'Locação residencial Pinheiros FAB-002', amount: 7500, type: 'RECEITA', category: 'ALUGUEL', status: 'PAGO', dueDate: new Date().toISOString(), paymentDate: new Date().toISOString(), paymentMethod: 'PIX' },
+  { id: '2', description: 'Taxa Administrativa Contrato Locação', amount: 450, type: 'RECEITA', category: 'OUTRO', status: 'ATRASADO', dueDate: new Date().toISOString() },
+  { id: '3', description: 'Comissão Corretor Rodrigo Silva - FAB-001', amount: 12000, type: 'DESPESA', category: 'COMISSAO', status: 'PENDENTE', dueDate: new Date().toISOString() },
 ];
 
 const MOCK_METRICS: FinancialMetrics = {
@@ -91,7 +91,7 @@ export default function DashboardFinanceiro() {
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    if (!confirm('Deseja excluir este lanÃ§amento financeiro?')) return;
+    if (!confirm('Deseja excluir este lançamento financeiro?')) return;
     try {
       await api.del(`/financial/${id}`);
       refetchAll();
@@ -145,7 +145,7 @@ export default function DashboardFinanceiro() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Fluxo Financeiro</h1>
-          <p className="text-sm text-muted-foreground font-semibold">BalanÃ§o consolidado, repasse de aluguÃ©is e comissÃµes corporativas.</p>
+          <p className="text-sm text-muted-foreground font-semibold">Balanço consolidado, repasse de aluguéis e comissões corporativas.</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -164,7 +164,7 @@ export default function DashboardFinanceiro() {
             onClick={() => setModalOpen(true)}
             className="bg-primary hover:bg-primary/95 text-white font-bold px-5 py-2.5 rounded-xl shadow flex items-center gap-2 cursor-pointer text-xs"
           >
-            <Plus className="h-4.5 w-4.5" /> Adicionar LanÃ§amento
+            <Plus className="h-4.5 w-4.5" /> Adicionar Lançamento
           </button>
         </div>
       </div>
@@ -190,7 +190,7 @@ export default function DashboardFinanceiro() {
               <ArrowDownRight className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">SaÃ­das Efetuadas</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Saídas Efetuadas</span>
               <h3 className="text-2xl font-black text-foreground">
                 {metrics.expenses.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </h3>
@@ -203,7 +203,7 @@ export default function DashboardFinanceiro() {
               <TrendingUp className="h-6 w-6" />
             </div>
             <div>
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">BalanÃ§o LÃ­quido</span>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Balanço Líquido</span>
               <h3 className="text-2xl font-black text-foreground">
                 {metrics.balance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </h3>
@@ -221,7 +221,7 @@ export default function DashboardFinanceiro() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por descriÃ§Ã£o ou categoria..."
+            placeholder="Buscar por descrição ou categoria..."
             className="w-full bg-secondary/40 border pl-10 pr-4 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/45 text-foreground text-sm"
           />
         </div>
@@ -232,9 +232,9 @@ export default function DashboardFinanceiro() {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="w-full bg-secondary/40 border px-3 py-2.5 rounded-xl outline-none text-foreground text-sm cursor-pointer"
           >
-            <option value="">Todas TransaÃ§Ãµes</option>
+            <option value="">Todas Transações</option>
             <option value="RECEITA">Entradas (Receitas)</option>
-            <option value="DESPESA">SaÃ­das (Despesas)</option>
+            <option value="DESPESA">Saídas (Despesas)</option>
           </select>
         </div>
 
@@ -245,10 +245,10 @@ export default function DashboardFinanceiro() {
             className="w-full bg-secondary/40 border px-3 py-2.5 rounded-xl outline-none text-foreground text-sm cursor-pointer"
           >
             <option value="">Todas Categorias</option>
-            <option value="ALUGUEL">AluguÃ©is</option>
+            <option value="ALUGUEL">Aluguéis</option>
             <option value="VENDA">Vendas</option>
-            <option value="COMISSAO">ComissÃµes</option>
-            <option value="SALARIO">Folha de SalÃ¡rio</option>
+            <option value="COMISSAO">Comissões</option>
+            <option value="SALARIO">Folha de Salário</option>
             <option value="MARKETING">Marketing</option>
             <option value="INFRAESTRUTURA">Infraestrutura</option>
           </select>
@@ -263,14 +263,14 @@ export default function DashboardFinanceiro() {
           </div>
         ) : filteredTxs.length === 0 ? (
           <div className="py-20 text-center text-muted-foreground text-sm font-semibold">
-            Nenhuma transaÃ§Ã£o registrada.
+            Nenhuma transação registrada.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-semibold">
               <thead>
                 <tr className="border-b bg-secondary/35 text-muted-foreground uppercase tracking-wider font-bold">
-                  <th className="p-4">DescriÃ§Ã£o</th>
+                  <th className="p-4">Descrição</th>
                   <th className="p-4">Categoria</th>
                   <th className="p-4">Vencimento</th>
                   <th className="p-4">Valor</th>
@@ -329,7 +329,7 @@ export default function DashboardFinanceiro() {
           <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-primary" /> Registrar LanÃ§amento
+                <DollarSign className="h-5 w-5 text-primary" /> Registrar Lançamento
               </h3>
               <button
                 onClick={() => setModalOpen(false)}
@@ -341,13 +341,13 @@ export default function DashboardFinanceiro() {
 
             <form onSubmit={handleCreateTransaction} className="space-y-4 text-xs font-semibold">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">DescriÃ§Ã£o HistÃ³rico</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Descrição Histórico</label>
                 <input
                   type="text"
                   required
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Ex: Recebimento ComissÃµes FAB-001"
+                  placeholder="Ex: Recebimento Comissões FAB-001"
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
               </div>
@@ -361,7 +361,7 @@ export default function DashboardFinanceiro() {
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                   >
                     <option value="RECEITA">Entrada (Receita)</option>
-                    <option value="DESPESA">SaÃ­da (Despesa)</option>
+                    <option value="DESPESA">Saída (Despesa)</option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -372,9 +372,9 @@ export default function DashboardFinanceiro() {
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                   >
                     <option value="ALUGUEL">Aluguel</option>
-                    <option value="VENDA">Venda ImÃ³vel</option>
-                    <option value="COMISSAO">ComissÃ£o</option>
-                    <option value="SALARIO">SalÃ¡rio</option>
+                    <option value="VENDA">Venda Imóvel</option>
+                    <option value="COMISSAO">Comissão</option>
+                    <option value="SALARIO">Salário</option>
                     <option value="MARKETING">Marketing</option>
                     <option value="INFRAESTRUTURA">Infraestrutura</option>
                     <option value="OUTRO">Outros</option>
@@ -384,7 +384,7 @@ export default function DashboardFinanceiro() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">Valor do LanÃ§amento</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Valor do Lançamento</label>
                   <input
                     type="number"
                     required
@@ -408,7 +408,7 @@ export default function DashboardFinanceiro() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">SituaÃ§Ã£o</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Situação</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
@@ -420,7 +420,7 @@ export default function DashboardFinanceiro() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">MÃ©todo Pagamento</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Método Pagamento</label>
                   <select
                     value={paymentMethod}
                     disabled={status !== 'PAGO'}
@@ -428,9 +428,9 @@ export default function DashboardFinanceiro() {
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer disabled:opacity-50"
                   >
                     <option value="PIX">PIX</option>
-                    <option value="BOLETO">Boleto BancÃ¡rio</option>
-                    <option value="CARTAO">CartÃ£o</option>
-                    <option value="TED">TransferÃªncia (TED)</option>
+                    <option value="BOLETO">Boleto Bancário</option>
+                    <option value="CARTAO">Cartão</option>
+                    <option value="TED">Transferência (TED)</option>
                   </select>
                 </div>
               </div>

@@ -39,12 +39,12 @@ interface Contract {
 
 const MOCK_CONTRACTS: Contract[] = [{
   id: '1',
-  title: 'Contrato de LocaÃ§Ã£o Residencial - Pinheiros FAB-002',
+  title: 'Contrato de Locação Residencial - Pinheiros FAB-002',
   type: 'ALUGUEL', status: 'ATIVO', value: 7500,
   startDate: new Date().toISOString(), endDate: new Date().toISOString(),
   signatureStatus: 'ASSINADO',
-  clientSignature: 'Assinado digitalmente por JoÃ£o Pedro de Oliveira',
-  client: { id: 'c1', name: 'JoÃ£o Pedro de Oliveira' },
+  clientSignature: 'Assinado digitalmente por João Pedro de Oliveira',
+  client: { id: 'c1', name: 'João Pedro de Oliveira' },
   property: { id: 'p2', code: 'FAB-002', title: 'Apartamento em Pinheiros', price: 7500 },
   broker: { id: 'b2', name: 'Amanda Souza' },
 }];
@@ -140,7 +140,7 @@ export default function DashboardContracts() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">GestÃ£o de Contratos</h1>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Gestão de Contratos</h1>
           <p className="text-sm text-muted-foreground font-semibold">Minutas residenciais, comerciais, e assinaturas digitais SaaS.</p>
         </div>
         <button
@@ -158,7 +158,7 @@ export default function DashboardContracts() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar contrato por tÃ­tulo ou cliente..."
+          placeholder="Buscar contrato por título ou cliente..."
           className="w-full bg-card border pl-11 pr-4 py-2.5 rounded-xl outline-none focus:ring-2 focus:ring-primary/45 text-foreground text-sm"
         />
       </div>
@@ -180,10 +180,10 @@ export default function DashboardContracts() {
                 <tr className="border-b bg-secondary/35 text-muted-foreground uppercase tracking-wider font-bold">
                   <th className="p-4">Contrato</th>
                   <th className="p-4">Cliente</th>
-                  <th className="p-4">ImÃ³vel</th>
+                  <th className="p-4">Imóvel</th>
                   <th className="p-4">Valor</th>
                   <th className="p-4">Assinatura</th>
-                  <th className="p-4 text-right">AÃ§Ã£o</th>
+                  <th className="p-4 text-right">Ação</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -192,14 +192,14 @@ export default function DashboardContracts() {
                     <td className="p-4">
                       <span className="font-extrabold text-sm text-foreground block line-clamp-1">{c.title}</span>
                       <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 mt-0.5">
-                        VigÃªncia: {new Date(c.startDate).toLocaleDateString('pt-BR')} atÃ© {new Date(c.endDate).toLocaleDateString('pt-BR')}
+                        Vigência: {new Date(c.startDate).toLocaleDateString('pt-BR')} até {new Date(c.endDate).toLocaleDateString('pt-BR')}
                       </span>
                     </td>
                     <td className="p-4 text-foreground/80">{c.client.name}</td>
                     <td className="p-4 text-muted-foreground font-bold">{c.property.code}</td>
                     <td className="p-4 text-primary font-black text-sm">
                       {c.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      {c.type === 'ALUGUEL' && <span className="text-[10px] text-muted-foreground font-normal">/mÃªs</span>}
+                      {c.type === 'ALUGUEL' && <span className="text-[10px] text-muted-foreground font-normal">/mês</span>}
                     </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase border flex items-center gap-1 w-fit ${
@@ -230,7 +230,7 @@ export default function DashboardContracts() {
                             disabled
                             className="border bg-secondary text-muted-foreground px-3 py-1.5 rounded-lg text-xs flex items-center gap-1"
                           >
-                            ConcluÃ­do
+                            Concluído
                           </button>
                         )}
                         <button
@@ -275,13 +275,13 @@ export default function DashboardContracts() {
 
             <form onSubmit={handleCreateContract} className="space-y-4 text-xs font-semibold">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">TÃ­tulo da Minuta</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Título da Minuta</label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Contrato de LocaÃ§Ã£o Residencial - CÃ³digo"
+                  placeholder="Ex: Contrato de Locação Residencial - Código"
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
               </div>
@@ -294,7 +294,7 @@ export default function DashboardContracts() {
                     onChange={(e) => setType(e.target.value)}
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                   >
-                    <option value="ALUGUEL">LocaÃ§Ã£o (Aluguel)</option>
+                    <option value="ALUGUEL">Locação (Aluguel)</option>
                     <option value="VENDA">Compra e Venda</option>
                   </select>
                 </div>
@@ -313,7 +313,7 @@ export default function DashboardContracts() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">InÃ­cio do Contrato</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Início do Contrato</label>
                   <input
                     type="date"
                     required
@@ -323,7 +323,7 @@ export default function DashboardContracts() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">TÃ©rmino do Contrato</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Término do Contrato</label>
                   <input
                     type="date"
                     required
@@ -335,14 +335,14 @@ export default function DashboardContracts() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular ImÃ³vel</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular Imóvel</label>
                 <select
                   required
                   value={propertyId}
                   onChange={(e) => setPropertyId(e.target.value)}
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                 >
-                  <option value="">Selecione o ImÃ³vel DisponÃ­vel</option>
+                  <option value="">Selecione o Imóvel Disponível</option>
                   {properties.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.code} - {p.title} ({p.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
@@ -352,7 +352,7 @@ export default function DashboardContracts() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular LocatÃ¡rio / Comprador</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular Locatário / Comprador</label>
                 <select
                   required
                   value={clientId}
@@ -380,7 +380,7 @@ export default function DashboardContracts() {
                   type="submit"
                   className="bg-primary hover:bg-primary/95 text-white font-bold px-6 py-2 rounded-xl shadow cursor-pointer"
                 >
-                  Confirmar ElaboraÃ§Ã£o
+                  Confirmar Elaboração
                 </button>
               </div>
             </form>
@@ -394,7 +394,7 @@ export default function DashboardContracts() {
           <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
-                <FileSignature className="h-5 w-5 text-primary" /> Assinatura EletrÃ´nica Fabelle
+                <FileSignature className="h-5 w-5 text-primary" /> Assinatura Eletrônica Fabelle
               </h3>
               <button
                 onClick={() => setSignatureModalOpen(false)}
@@ -408,7 +408,7 @@ export default function DashboardContracts() {
               <div className="bg-amber-500/10 text-amber-500 border border-amber-500/20 p-4 rounded-xl flex items-start gap-2.5">
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <p className="font-medium leading-relaxed">
-                  Para assinar eletronicamente esta minuta com fÃ© pÃºblica e validade jurÃ­dica, confirme o nome do signatÃ¡rio e desenhe no pad abaixo.
+                  Para assinar eletronicamente esta minuta com fé pública e validade jurídica, confirme o nome do signatário e desenhe no pad abaixo.
                 </p>
               </div>
 

@@ -109,7 +109,7 @@ export default function DashboardUsuarios() {
 
   const handleDelete = async (id: string) => {
     if (id === currentUser?.id) {
-      alert('VocÃª nÃ£o pode excluir sua prÃ³pria conta!');
+      alert('Você não pode excluir sua própria conta!');
       return;
     }
     if (!confirm('Deseja deletar permanentemente este colaborador?')) return;
@@ -124,8 +124,8 @@ export default function DashboardUsuarios() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Equipe & UsuÃ¡rios</h1>
-          <p className="text-sm text-muted-foreground font-semibold">Gerencie permissÃµes de corretores, gerentes e administradores.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Equipe & Usuários</h1>
+          <p className="text-sm text-muted-foreground font-semibold">Gerencie permissões de corretores, gerentes e administradores.</p>
         </div>
         <button
           onClick={handleOpenCreate}
@@ -149,9 +149,9 @@ export default function DashboardUsuarios() {
                   <th className="p-4">Colaborador</th>
                   <th className="p-4">WhatsApp</th>
                   <th className="p-4">CRECI</th>
-                  <th className="p-4">ComissÃ£o / Meta</th>
-                  <th className="p-4">PermissÃ£o</th>
-                  <th className="p-4 text-right">AÃ§Ãµes</th>
+                  <th className="p-4">Comissão / Meta</th>
+                  <th className="p-4">Permissão</th>
+                  <th className="p-4 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -166,16 +166,16 @@ export default function DashboardUsuarios() {
                         <span className="text-muted-foreground font-medium text-[10px]">{u.email}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-foreground/80">{u.phone || 'NÃ£o cadastrado'}</td>
+                    <td className="p-4 text-foreground/80">{u.phone || 'Não cadastrado'}</td>
                     <td className="p-4 text-muted-foreground font-bold">{u.creci || '---'}</td>
                     <td className="p-4">
                       {u.role === 'CORRETOR' ? (
                         <div>
-                          <span className="text-foreground block">{u.commissionRate}% ComissÃ£o</span>
+                          <span className="text-foreground block">{u.commissionRate}% Comissão</span>
                           <span className="text-muted-foreground text-[10px] font-medium">Meta: R$ {u.salesMeta.toLocaleString('pt-BR')}</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground font-normal">NÃ£o se aplica</span>
+                        <span className="text-muted-foreground font-normal">Não se aplica</span>
                       )}
                     </td>
                     <td className="p-4">
@@ -270,7 +270,7 @@ export default function DashboardUsuarios() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">PermissÃ£o / NÃ­vel</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Permissão / Nível</label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
@@ -311,7 +311,7 @@ export default function DashboardUsuarios() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground/80 uppercase">ComissÃ£o (%)</label>
+                      <label className="text-xs font-bold text-foreground/80 uppercase">Comissão (%)</label>
                       <input
                         type="number"
                         value={commissionRate}

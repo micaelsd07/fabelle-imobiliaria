@@ -37,7 +37,7 @@ const MOCK_VISITS: Visit[] = (() => {
     status: 'AGENDADA',
     notes: 'Cliente quer levar arquiteto para avaliar planta.',
     broker: { id: 'b1', name: 'Rodrigo Silva', phone: '(11) 98888-3333' },
-    client: { id: 'c1', name: 'JoÃ£o Pedro de Oliveira', phone: '(11) 98111-2222' },
+    client: { id: 'c1', name: 'João Pedro de Oliveira', phone: '(11) 98111-2222' },
     property: { id: 'p1', code: 'FAB-001', title: 'Cobertura Duplex nos Jardins', address: 'Alameda Lorena, 1500' },
   }];
 })();
@@ -107,7 +107,7 @@ export default function DashboardAgenda() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Agenda de Visitas</h1>
-          <p className="text-sm text-muted-foreground font-semibold">Agende visitas, acompanhe confirmaÃ§Ãµes e envie lembretes.</p>
+          <p className="text-sm text-muted-foreground font-semibold">Agende visitas, acompanhe confirmações e envie lembretes.</p>
         </div>
         <button
           onClick={() => {
@@ -209,7 +209,7 @@ export default function DashboardAgenda() {
                       onClick={() => handleUpdateStatus(visit.id, 'REALIZADA')}
                       className="bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
                     >
-                      ConcluÃ­da
+                      Concluída
                     </button>
                   )}
                   {visit.status !== 'REALIZADA' && visit.status !== 'CANCELADA' && (
@@ -258,14 +258,14 @@ export default function DashboardAgenda() {
 
               {/* Property Select */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">ImÃ³vel</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Imóvel</label>
                 <select
                   required
                   value={propertyId}
                   onChange={(e) => setPropertyId(e.target.value)}
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                 >
-                  <option value="">Selecione o ImÃ³vel</option>
+                  <option value="">Selecione o Imóvel</option>
                   {properties.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.code} - {p.title}
@@ -294,13 +294,13 @@ export default function DashboardAgenda() {
 
               {/* Broker Select */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Corretor ResponsÃ¡vel</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Corretor Responsável</label>
                 <select
                   value={brokerId}
                   onChange={(e) => setBrokerId(e.target.value)}
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                 >
-                  <option value="">AtribuÃ­do a mim ({user?.name})</option>
+                  <option value="">Atribuído a mim ({user?.name})</option>
                   {brokers.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
@@ -311,7 +311,7 @@ export default function DashboardAgenda() {
 
               {/* Notes */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">InstruÃ§Ãµes / Notas da Visita</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Instruções / Notas da Visita</label>
                 <textarea
                   rows={2}
                   value={notes}

@@ -39,7 +39,7 @@ const COLUMNS = [
   { id: 'CONTATADO', title: 'Contatado', color: 'border-t-amber-500 bg-amber-500/5' },
   { id: 'VISITA_AGENDADA', title: 'Visita Agendada', color: 'border-t-purple-500 bg-purple-500/5' },
   { id: 'PROPOSTA', title: 'Proposta', color: 'border-t-pink-500 bg-pink-500/5' },
-  { id: 'NEGOCIACAO', title: 'NegociaÃ§Ã£o', color: 'border-t-indigo-500 bg-indigo-500/5' },
+  { id: 'NEGOCIACAO', title: 'Negociação', color: 'border-t-indigo-500 bg-indigo-500/5' },
   { id: 'GANHO', title: 'Ganho / Fechado', color: 'border-t-emerald-500 bg-emerald-500/5' },
   { id: 'PERDIDO', title: 'Perdido', color: 'border-t-red-500 bg-red-500/5' },
 ];
@@ -55,7 +55,7 @@ const MOCK_LEADS: Lead[] = [
     id: '2', name: 'Gabriel Albuquerque', email: 'gabriel.albu@email.com', phone: '(11) 99233-4455',
     whatsapp: '(11) 99233-4455', source: 'GOOGLE', status: 'CONTATADO', notes: 'Demonstrou interesse no aluguel em Pinheiros.',
     createdAt: new Date().toISOString(), broker: { id: 'b2', name: 'Amanda Souza' },
-    history: [{ id: 'h2', type: 'CALL', content: 'Primeira ligaÃ§Ã£o realizada. Receptivo.', createdAt: new Date().toISOString() }],
+    history: [{ id: 'h2', type: 'CALL', content: 'Primeira ligação realizada. Receptivo.', createdAt: new Date().toISOString() }],
   },
 ];
 
@@ -140,7 +140,7 @@ export default function DashboardLeads() {
         <div className="space-y-1">
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Funil de Leads (CRM)</h1>
           <p className="text-sm text-muted-foreground font-semibold">
-            Mapeie o fluxo comercial de atraÃ§Ã£o, agendamentos de visita e propostas de fechamento.
+            Mapeie o fluxo comercial de atração, agendamentos de visita e propostas de fechamento.
           </p>
         </div>
         <button
@@ -217,7 +217,7 @@ export default function DashboardLeads() {
                                 moveStatus(lead.id, neighbors.next!);
                               }}
                               className="p-1 border rounded hover:bg-secondary cursor-pointer text-muted-foreground hover:text-foreground"
-                              title="AvanÃ§ar status"
+                              title="Avançar status"
                             >
                               <ArrowRight className="h-3 w-3" />
                             </button>
@@ -284,7 +284,7 @@ export default function DashboardLeads() {
 
             {/* Pipeline Stage Select */}
             <div className="space-y-1.5 text-xs font-bold">
-              <label className="text-foreground/80 uppercase">EstÃ¡gio Atual do Funil</label>
+              <label className="text-foreground/80 uppercase">Estágio Atual do Funil</label>
               <select
                 value={selectedLead.status}
                 onChange={(e) => moveStatus(selectedLead.id, e.target.value)}
@@ -301,7 +301,7 @@ export default function DashboardLeads() {
             {/* Timeline & Actions History */}
             <div className="flex-grow flex flex-col gap-4 overflow-hidden border-t pt-4">
               <h4 className="font-extrabold text-sm text-foreground flex items-center gap-1.5">
-                <History className="h-4.5 w-4.5 text-primary" /> HistÃ³rico de LigaÃ§Ãµes & ObservaÃ§Ãµes
+                <History className="h-4.5 w-4.5 text-primary" /> Histórico de Ligações & Observações
               </h4>
 
               {/* Input Logger form */}
@@ -312,7 +312,7 @@ export default function DashboardLeads() {
                   className="bg-secondary/60 border px-2 py-2 rounded-lg outline-none text-xs text-foreground cursor-pointer font-bold shrink-0"
                 >
                   <option value="ANNOTATION">Nota</option>
-                  <option value="CALL">LigaÃ§Ã£o</option>
+                  <option value="CALL">Ligação</option>
                   <option value="EMAIL">E-mail</option>
                   <option value="WHATSAPP">WhatsApp</option>
                 </select>
@@ -321,7 +321,7 @@ export default function DashboardLeads() {
                   required
                   value={newAnnotation}
                   onChange={(e) => setNewAnnotation(e.target.value)}
-                  placeholder="Registrar anotaÃ§Ã£o ou contato..."
+                  placeholder="Registrar anotação ou contato..."
                   className="flex-grow bg-secondary/50 border px-3 py-2 rounded-lg outline-none text-xs text-foreground"
                 />
                 <button
@@ -354,7 +354,7 @@ export default function DashboardLeads() {
                   ))
                 ) : (
                   <span className="text-xs text-muted-foreground font-medium block italic text-center py-6">
-                    Nenhuma anotaÃ§Ã£o de contato registrada.
+                    Nenhuma anotação de contato registrada.
                   </span>
                 )}
               </div>
@@ -417,29 +417,29 @@ export default function DashboardLeads() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Origem de CaptaÃ§Ã£o</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Origem de Captação</label>
                 <select
                   value={leadSource}
                   onChange={(e) => setLeadSource(e.target.value)}
                   className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
                 >
-                  <option value="SITE">FormulÃ¡rio Website</option>
+                  <option value="SITE">Formulário Website</option>
                   <option value="WHATSAPP">WhatsApp Direto</option>
                   <option value="GOOGLE">Google Ads / Busca</option>
                   <option value="FACEBOOK">Facebook Ads</option>
                   <option value="INSTAGRAM">Instagram Direct</option>
-                  <option value="INDICACAO">IndicaÃ§Ã£o</option>
+                  <option value="INDICACAO">Indicação</option>
                   <option value="OUTRO">Outros canais</option>
                 </select>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">ObservaÃ§Ãµes Iniciais</label>
+                <label className="text-xs font-bold text-foreground/80 uppercase">Observações Iniciais</label>
                 <textarea
                   rows={3}
                   value={leadNotes}
                   onChange={(e) => setLeadNotes(e.target.value)}
-                  placeholder="Mencione detalhes do interesse do cliente ou imÃ³vel..."
+                  placeholder="Mencione detalhes do interesse do cliente ou imóvel..."
                   className="w-full bg-secondary/40 border px-3 py-2 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
               </div>
