@@ -11,7 +11,9 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm ci && npx prisma generate && npm run build && npx prisma migrate deploy
+    # --include=dev: precisamos das devDependencies (nest-cli, typescript) pra buildar
+    # db push (na primeira vez, banco vazio): sincroniza o schema no Neon sem precisar de migration files
+    buildCommand: npm ci --include=dev && npx prisma generate && npm run build && npx prisma db push --accept-data-loss --skip-generate
     startCommand: npm run start:prod
     healthCheckPath: /health
     envVars:
