@@ -117,7 +117,7 @@ model PropertyPhoto {
 
 model Client {
   id          String   @id @default(uuid())
-  clientType  String   @default("COMPRADOR") // COMPRADOR, LOCATARIO, INTERESSADO
+  clientType  String   @default("COMPRADOR") // COMPRADOR, LOCATARIO, LOCADOR, INTERESSADO
   name        String
   cpf         String?  @unique
   rg          String?
@@ -135,6 +135,14 @@ model Client {
   notes       String?
   preferences String? // Comma-separated or serialized preferences
   photo       String?
+
+  // Dados do cônjuge (preenchidos quando civilStatus for Casado(a)/União Estável)
+  spouseName    String?
+  spouseCpf     String?
+  spouseRg      String?
+  spousePhone   String?
+  spouseAddress String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

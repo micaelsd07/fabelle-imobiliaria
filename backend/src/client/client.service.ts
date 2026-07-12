@@ -1,7 +1,7 @@
 ﻿import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-const CLIENT_TYPES = ['COMPRADOR', 'LOCATARIO', 'INTERESSADO'];
+const CLIENT_TYPES = ['COMPRADOR', 'LOCATARIO', 'LOCADOR', 'INTERESSADO'];
 
 @Injectable()
 export class ClientService {

@@ -60,7 +60,12 @@ export default function DashboardContracts() {
   const contracts: Contract[] = contractsQuery.data ?? [];
   const loading = contractsQuery.isLoading;
   const clients: Array<{ id: string; name: string }> = clientsQuery.data ?? [];
-  const properties: Array<{ id: string; code: string; title: string; price: number }> =
+  type PropertyLite = {
+    id: string; code: string; title: string; price: number;
+    ownerName?: string; ownerCpf?: string; ownerPhone?: string; ownerEmail?: string;
+    ownerCivilStatus?: string;
+  };
+  const properties: PropertyLite[] =
     (propertiesQuery.data ?? []).filter((x: any) => x.status === 'DISPONIVEL');
 
   const [search, setSearch] = useState('');
@@ -83,26 +88,42 @@ export default function DashboardContracts() {
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['contracts'] });
 
+  const selectedProperty = properties.find((p) => p.id === propertyId);
+  const selectedClient = clients.find((c) => c.id === clientId);
+
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!pdfFile) {
+      alert('Selecione o PDF do contrato antes de salvar.');
+      return;
+    }
     setUploadingPdf(true);
     try {
-      let pdfUrl: string | null = null;
-      if (pdfFile) {
-        const uploaded = await api.uploadDocument(pdfFile);
-        pdfUrl = uploaded.url;
-      }
+      const uploaded = await api.uploadDocument(pdfFile);
+      const pdfUrl = uploaded.url;
+
+      // Título automático — imóvel + locatário
+      const autoTitle = title ||
+        `Contrato ${type === 'ALUGUEL' ? 'Locação' : 'Compra e Venda'} — ${selectedProperty?.code || ''} · ${selectedClient?.name || ''}`.trim();
+
       const payload = {
-        title, type,
-        value: parseFloat(value.toString()),
-        startDate, endDate, clientId, propertyId,
+        title: autoTitle,
+        type,
+        value: parseFloat(value.toString()) || 0,
+        startDate: startDate || new Date().toISOString().slice(0, 10),
+        endDate: endDate || new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        clientId,
+        propertyId,
         brokerId: user?.id,
-        ...(pdfUrl ? { pdfUrl, signatureStatus: 'ASSINADO', status: 'ATIVO' } : {}),
+        pdfUrl,
+        signatureStatus: 'ASSINADO',
+        status: 'ATIVO',
       };
       await api.post('/contracts', payload);
       refresh();
       setCreateModalOpen(false);
       setPdfFile(null);
+      setTitle('');
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.');
     } finally {
@@ -154,14 +175,14 @@ export default function DashboardContracts() {
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5">
         <div className="space-y-1">
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Gestão de Contratos</h1>
-          <p className="text-sm text-muted-foreground font-semibold">Minutas residenciais, comerciais, e assinaturas digitais SaaS.</p>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Contratos</h1>
+          <p className="text-sm text-muted-foreground font-semibold">Suba o PDF do contrato e vincule ao imóvel, locador e locatário.</p>
         </div>
         <button
           onClick={() => setCreateModalOpen(true)}
           className="bg-primary hover:bg-primary/95 text-white font-bold px-5 py-3 rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer text-sm"
         >
-          <Plus className="h-4.5 w-4.5" /> Elaborar Contrato
+          <Plus className="h-4.5 w-4.5" /> Subir Contrato
         </button>
       </div>
 
@@ -283,13 +304,13 @@ export default function DashboardContracts() {
         )}
       </div>
 
-      {/* Contract Creation Modal */}
+      {/* Contract Upload Modal */}
       {createModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
+          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in scale-in duration-300 max-h-[92vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
-                <FileSignature className="h-5 w-5 text-primary" /> Elaborar Minuta Contrato
+                <FileSignature className="h-5 w-5 text-primary" /> Subir Contrato
               </h3>
               <button
                 onClick={() => setCreateModalOpen(false)}
@@ -300,18 +321,65 @@ export default function DashboardContracts() {
             </div>
 
             <form onSubmit={handleCreateContract} className="space-y-4 text-xs font-semibold">
+              {/* Imóvel */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Título da Minuta</label>
-                <input
-                  type="text"
+                <label className="text-xs font-bold text-foreground/80 uppercase">Imóvel</label>
+                <select
                   required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Contrato de Locação Residencial - Código"
-                  className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                />
+                  value={propertyId}
+                  onChange={(e) => setPropertyId(e.target.value)}
+                  className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
+                >
+                  <option value="">Selecione o imóvel</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.code} - {p.title}
+                    </option>
+                  ))}
+                </select>
               </div>
 
+              {/* Preview do Locador */}
+              {selectedProperty && (
+                <div className="rounded-xl bg-primary/5 border border-primary/20 p-3 space-y-1.5">
+                  <p className="text-[10px] uppercase font-black text-primary tracking-wider">Locador (proprietário)</p>
+                  {selectedProperty.ownerName ? (
+                    <>
+                      <p className="text-sm font-bold text-foreground">{selectedProperty.ownerName}</p>
+                      <div className="grid grid-cols-2 gap-1 text-[11px] text-muted-foreground">
+                        {selectedProperty.ownerCpf && <span>CPF: {selectedProperty.ownerCpf}</span>}
+                        {selectedProperty.ownerPhone && <span>Tel: {selectedProperty.ownerPhone}</span>}
+                        {selectedProperty.ownerEmail && <span className="col-span-2 truncate">Email: {selectedProperty.ownerEmail}</span>}
+                        {selectedProperty.ownerCivilStatus && <span>Estado civil: {selectedProperty.ownerCivilStatus}</span>}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground italic">
+                      Este imóvel ainda não tem locador cadastrado. Edite o imóvel para preencher.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Locatário / Comprador */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground/80 uppercase">Locatário / Comprador</label>
+                <select
+                  required
+                  value={clientId}
+                  onChange={(e) => setClientId(e.target.value)}
+                  className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
+                >
+                  <option value="">Selecione o cliente</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Modalidade + Valor */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground/80 uppercase">Modalidade</label>
@@ -325,78 +393,21 @@ export default function DashboardContracts() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">Valor Contratual (BRL)</label>
+                  <label className="text-xs font-bold text-foreground/80 uppercase">Valor (opcional)</label>
                   <input
                     type="number"
-                    required
-                    value={value}
-                    onChange={(e) => setValue(parseFloat(e.target.value))}
+                    value={value || ''}
+                    onChange={(e) => setValue(parseFloat(e.target.value) || 0)}
                     placeholder="7500"
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground font-semibold text-primary"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">Início do Contrato</label>
-                  <input
-                    type="date"
-                    required
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground/80 uppercase">Término do Contrato</label>
-                  <input
-                    type="date"
-                    required
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground"
-                  />
-                </div>
-              </div>
-
+              {/* PDF (obrigatório) */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular Imóvel</label>
-                <select
-                  required
-                  value={propertyId}
-                  onChange={(e) => setPropertyId(e.target.value)}
-                  className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
-                >
-                  <option value="">Selecione o Imóvel Disponível</option>
-                  {properties.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.code} - {p.title} ({p.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Vincular Locatário / Comprador</label>
-                <select
-                  required
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground cursor-pointer"
-                >
-                  <option value="">Selecione o Cliente</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">Anexar PDF do contrato (opcional)</label>
-                <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 flex items-center gap-3">
+                <label className="text-xs font-bold text-foreground/80 uppercase">PDF do contrato <span className="text-red-500">*</span></label>
+                <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 flex items-center gap-3">
                   <input
                     id="contract-pdf-input"
                     type="file"
@@ -406,7 +417,7 @@ export default function DashboardContracts() {
                   />
                   <label
                     htmlFor="contract-pdf-input"
-                    className="bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-wider cursor-pointer hover:bg-primary/95"
+                    className="bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-wider cursor-pointer hover:bg-primary/95 shrink-0"
                   >
                     Escolher PDF
                   </label>
@@ -417,16 +428,13 @@ export default function DashboardContracts() {
                     <button
                       type="button"
                       onClick={() => setPdfFile(null)}
-                      className="text-red-500 hover:text-red-700 text-lg leading-none"
+                      className="text-red-500 hover:text-red-700 text-lg leading-none shrink-0"
                       title="Remover PDF"
                     >
                       ×
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  Se anexar um PDF, o contrato já entra como <strong>ATIVO/ASSINADO</strong>. Caso contrário, elabora minuta em branco.
-                </p>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
@@ -440,10 +448,10 @@ export default function DashboardContracts() {
                 </button>
                 <button
                   type="submit"
-                  disabled={uploadingPdf}
+                  disabled={uploadingPdf || !pdfFile}
                   className="bg-primary hover:bg-primary/95 text-white font-bold px-6 py-2 rounded-xl shadow cursor-pointer disabled:opacity-60"
                 >
-                  {uploadingPdf ? 'Enviando…' : 'Confirmar Elaboração'}
+                  {uploadingPdf ? 'Enviando…' : 'Salvar contrato'}
                 </button>
               </div>
             </form>

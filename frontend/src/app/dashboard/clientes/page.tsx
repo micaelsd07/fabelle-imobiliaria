@@ -18,8 +18,10 @@ import {
   X,
 } from 'lucide-react';
 
-type ClientType = 'COMPRADOR' | 'LOCATARIO' | 'INTERESSADO';
-type ActiveTab = ClientType | 'LOCADOR';
+type ClientType = 'COMPRADOR' | 'LOCATARIO' | 'LOCADOR' | 'INTERESSADO';
+type ActiveTab = ClientType;
+
+const SPOUSE_REQUIRED_STATUSES = ['Casado(a)', 'União Estável'];
 
 interface Client {
   id: string;
@@ -40,6 +42,11 @@ interface Client {
   notes?: string;
   preferences?: string;
   photo?: string;
+  spouseName?: string;
+  spouseCpf?: string;
+  spouseRg?: string;
+  spousePhone?: string;
+  spouseAddress?: string;
   createdAt: string;
   contracts?: Array<{ id: string; title: string; type: string; value: number; status: string; property: { code: string } }>;
   visits?: Array<{ id: string; dateTime: string; status: string; property: { code: string; title: string } }>;
@@ -95,7 +102,6 @@ export default function DashboardClients() {
   const clientsQuery = useQuery({
     queryKey: ['clients', activeTab, search],
     queryFn: () => api.get<Client[]>(`/clients?type=${activeTab}&search=${encodeURIComponent(search)}`),
-    enabled: activeTab !== 'LOCADOR',
     retry: false,
   });
 
@@ -106,8 +112,13 @@ export default function DashboardClients() {
     retry: false,
   });
 
-  const items: Person[] = activeTab === 'LOCADOR' ? ownersQuery.data ?? [] : clientsQuery.data ?? [];
-  const loading = activeTab === 'LOCADOR' ? ownersQuery.isLoading : clientsQuery.isLoading;
+  // Na aba Locadores, combina Clients tipo=LOCADOR + proprietários de Property (fonte "owner do imóvel")
+  const items: Person[] = activeTab === 'LOCADOR'
+    ? [...(clientsQuery.data ?? []), ...(ownersQuery.data ?? [])]
+    : (clientsQuery.data ?? []);
+  const loading = activeTab === 'LOCADOR'
+    ? clientsQuery.isLoading || ownersQuery.isLoading
+    : clientsQuery.isLoading;
   const activeMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
 
   const counts = useMemo(() => {
@@ -427,6 +438,7 @@ function ClientModal({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [cpf, setCpf] = useState('');
+  const [rg, setRg] = useState('');
   const [civilStatus, setCivilStatus] = useState('');
   const [profession, setProfession] = useState('');
   const [income, setIncome] = useState(0);
@@ -437,6 +449,15 @@ function ClientModal({
   const [preferences, setPreferences] = useState('');
   const [notes, setNotes] = useState('');
 
+  // Cônjuge
+  const [spouseName, setSpouseName] = useState('');
+  const [spouseCpf, setSpouseCpf] = useState('');
+  const [spouseRg, setSpouseRg] = useState('');
+  const [spousePhone, setSpousePhone] = useState('');
+  const [spouseAddress, setSpouseAddress] = useState('');
+
+  const spouseVisible = SPOUSE_REQUIRED_STATUSES.includes(civilStatus);
+
   useEffect(() => {
     if (!isOpen) return;
     setClientType(initialData?.clientType || defaultType);
@@ -444,6 +465,7 @@ function ClientModal({
     setEmail(initialData?.email || '');
     setPhone(initialData?.phone || '');
     setCpf(initialData?.cpf || '');
+    setRg(initialData?.rg || '');
     setCivilStatus(initialData?.civilStatus || '');
     setProfession(initialData?.profession || '');
     setIncome(initialData?.income || 0);
@@ -453,6 +475,11 @@ function ClientModal({
     setZipCode(initialData?.zipCode || '');
     setPreferences(initialData?.preferences || '');
     setNotes(initialData?.notes || '');
+    setSpouseName(initialData?.spouseName || '');
+    setSpouseCpf(initialData?.spouseCpf || '');
+    setSpouseRg(initialData?.spouseRg || '');
+    setSpousePhone(initialData?.spousePhone || '');
+    setSpouseAddress(initialData?.spouseAddress || '');
   }, [isOpen, initialData, defaultType]);
 
   if (!isOpen) return null;
@@ -466,6 +493,7 @@ function ClientModal({
       phone,
       whatsapp: phone,
       cpf: cpf || null,
+      rg: rg || null,
       civilStatus,
       profession,
       income: parseFloat(income.toString()) || 0,
@@ -475,6 +503,12 @@ function ClientModal({
       zipCode,
       preferences,
       notes,
+      // Cônjuge — só envia dados quando estado civil é casado/união estável
+      spouseName: spouseVisible ? spouseName || null : null,
+      spouseCpf: spouseVisible ? spouseCpf || null : null,
+      spouseRg: spouseVisible ? spouseRg || null : null,
+      spousePhone: spouseVisible ? spousePhone || null : null,
+      spouseAddress: spouseVisible ? spouseAddress || null : null,
     });
   };
 
@@ -493,8 +527,8 @@ function ClientModal({
         <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-6 space-y-6 text-xs font-semibold">
           <section className="space-y-4">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Classificacao</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {(['COMPRADOR', 'LOCATARIO', 'INTERESSADO'] as ClientType[]).map((type) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {(['COMPRADOR', 'LOCATARIO', 'LOCADOR', 'INTERESSADO'] as ClientType[]).map((type) => (
                 <button
                   key={type}
                   type="button"
@@ -521,6 +555,9 @@ function ClientModal({
               <ModalField label="CPF">
                 <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
               </ModalField>
+              <ModalField label="RG">
+                <input type="text" value={rg} onChange={(e) => setRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+              </ModalField>
               <ModalField label="Telefone / WhatsApp">
                 <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(11) 99999-9999" className="modal-input" />
               </ModalField>
@@ -538,8 +575,9 @@ function ClientModal({
                   <option value="">Selecionar</option>
                   <option value="Solteiro(a)">Solteiro(a)</option>
                   <option value="Casado(a)">Casado(a)</option>
+                  <option value="União Estável">União Estável</option>
                   <option value="Divorciado(a)">Divorciado(a)</option>
-                  <option value="Viuvo(a)">Viuvo(a)</option>
+                  <option value="Viuvo(a)">Viúvo(a)</option>
                 </select>
               </ModalField>
               <ModalField label="Renda mensal (BRL)">
@@ -547,6 +585,32 @@ function ClientModal({
               </ModalField>
             </div>
           </section>
+
+          {spouseVisible && (
+            <section className="space-y-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
+              <h4 className="text-[11px] font-black uppercase tracking-wider text-primary flex items-center gap-2">
+                <UserRound className="h-4 w-4" />
+                Dados do Cônjuge
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ModalField label="Nome completo do cônjuge">
+                  <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
+                </ModalField>
+                <ModalField label="Telefone do cônjuge">
+                  <input type="tel" value={spousePhone} onChange={(e) => setSpousePhone(e.target.value)} placeholder="(11) 99999-9999" className="modal-input" />
+                </ModalField>
+                <ModalField label="CPF do cônjuge">
+                  <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                </ModalField>
+                <ModalField label="RG do cônjuge">
+                  <input type="text" value={spouseRg} onChange={(e) => setSpouseRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+                </ModalField>
+                <ModalField label="Endereço do cônjuge (onde mora)" className="md:col-span-2">
+                  <input type="text" value={spouseAddress} onChange={(e) => setSpouseAddress(e.target.value)} placeholder="Rua, número, bairro, cidade" className="modal-input" />
+                </ModalField>
+              </div>
+            </section>
+          )}
 
           <section className="space-y-4">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Endereco</h4>
