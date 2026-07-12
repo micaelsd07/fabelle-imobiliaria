@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api, absoluteUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { generateContractPDF } from './contract-pdf';
@@ -59,7 +60,9 @@ export default function DashboardContracts() {
 
   const contracts: Contract[] = contractsQuery.data ?? [];
   const loading = contractsQuery.isLoading;
-  const clients: Array<{ id: string; name: string }> = clientsQuery.data ?? [];
+  // Só locatários e compradores fazem sentido pra um contrato — filtra locadores/interessados fora.
+  const clients: Array<{ id: string; name: string; clientType?: string }> =
+    (clientsQuery.data ?? []).filter((c: any) => !c.clientType || c.clientType === 'LOCATARIO' || c.clientType === 'COMPRADOR');
   type PropertyLite = {
     id: string; code: string; title: string; price: number;
     ownerName?: string; ownerCpf?: string; ownerPhone?: string; ownerEmail?: string;
@@ -94,7 +97,7 @@ export default function DashboardContracts() {
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pdfFile) {
-      alert('Selecione o PDF do contrato antes de salvar.');
+      toast.error('Selecione o PDF do contrato antes de salvar.');
       return;
     }
     setUploadingPdf(true);
@@ -124,8 +127,9 @@ export default function DashboardContracts() {
       setCreateModalOpen(false);
       setPdfFile(null);
       setTitle('');
+      toast.success('Contrato criado com sucesso');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.');
     } finally {
       setUploadingPdf(false);
     }
@@ -136,8 +140,9 @@ export default function DashboardContracts() {
     try {
       await api.del(`/contracts/${id}`);
       refresh();
+      toast.success('Contrato excluído');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao excluir contrato.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao excluir contrato.');
     }
   };
 
@@ -158,8 +163,9 @@ export default function DashboardContracts() {
       await api.post(`/contracts/${signingContractId}/sign`, { signature: signatureText });
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       refresh();
+      toast.success('Contrato assinado eletronicamente');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao assinar contrato.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao assinar contrato.');
       return;
     }
     setSignatureModalOpen(false);

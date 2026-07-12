@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Car, ImagePlus, Sparkles, UploadCloud, User, X } from 'lucide-react';
 import { api, absoluteUrl } from '@/lib/api';
+import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
 import type { Property } from './types';
 import { CIVIL_STATUS_OPTIONS, SPOUSE_REQUIRED_STATUSES } from './types';
 
@@ -306,13 +307,13 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Field label="CPF">
-                <input type="text" value={ownerCpf} onChange={(e) => setOwnerCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                <input type="text" value={ownerCpf} onChange={(e) => setOwnerCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="RG">
-                <input type="text" value={ownerRg} onChange={(e) => setOwnerRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+                <input type="text" value={ownerRg} onChange={(e) => setOwnerRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="Telefone / WhatsApp">
-                <input type="text" value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} placeholder="(00) 00000-0000" className="modal-input" />
+                <input type="text" value={ownerPhone} onChange={(e) => setOwnerPhone(maskPhone(e.target.value))} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="E-mail">
                 <input type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="proprietario@email.com" className="modal-input" />
@@ -338,10 +339,10 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
                     <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
                   </Field>
                   <Field label="CPF do cônjuge">
-                    <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                    <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
                   </Field>
                   <Field label="Telefone do cônjuge">
-                    <input type="text" value={spousePhone} onChange={(e) => setSpousePhone(e.target.value)} placeholder="(00) 00000-0000" className="modal-input" />
+                    <input type="text" value={spousePhone} onChange={(e) => setSpousePhone(maskPhone(e.target.value))} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
                   </Field>
                 </div>
               </div>
@@ -364,7 +365,7 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
                 <input type="text" required value={state} onChange={(e) => setState(e.target.value)} placeholder="UF" className="modal-input" />
               </Field>
               <Field label="CEP">
-                <input type="text" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="00000-000" className="modal-input" />
+                <input type="text" value={zipCode} onChange={(e) => setZipCode(maskCep(e.target.value))} placeholder="00000-000" className="modal-input" inputMode="numeric" />
               </Field>
             </div>
             <Field label="Descricao detalhada">

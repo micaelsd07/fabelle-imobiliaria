@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { QueryProvider } from "@/context/QueryProvider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Fabelle Imobiliária | CRM Premium & Portal de Imóveis",
@@ -29,6 +30,13 @@ export default function RootLayout({
         <QueryProvider>
           <AppProvider>
             {children}
+            <Toaster
+              position="top-right"
+              richColors
+              closeButton
+              expand
+              toastOptions={{ style: { fontFamily: 'inherit' } }}
+            />
           </AppProvider>
         </QueryProvider>
       </body>

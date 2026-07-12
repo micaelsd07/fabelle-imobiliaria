@@ -2,7 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
 import {
   Briefcase,
   Compass,
@@ -172,8 +174,9 @@ export default function DashboardClients() {
       setModalOpen(false);
       setEditingClient(null);
       setActiveTab(saved.clientType ?? 'COMPRADOR');
+      toast.success(editingClient ? 'Cadastro atualizado' : 'Cadastro criado com sucesso');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao salvar cadastro.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao salvar cadastro.');
     }
   };
 
@@ -183,8 +186,9 @@ export default function DashboardClients() {
       await api.del(`/clients/${client.id}`);
       refresh();
       setSelectedPerson(null);
+      toast.success(`${client.name} foi excluído`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Erro ao excluir cadastro.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao excluir cadastro.');
     }
   };
 
@@ -553,13 +557,13 @@ function ClientModal({
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="exemplo@email.com" className="modal-input" />
               </ModalField>
               <ModalField label="CPF">
-                <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                <input type="text" value={cpf} onChange={(e) => setCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
               </ModalField>
               <ModalField label="RG">
-                <input type="text" value={rg} onChange={(e) => setRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+                <input type="text" value={rg} onChange={(e) => setRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
               </ModalField>
               <ModalField label="Telefone / WhatsApp">
-                <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(11) 99999-9999" className="modal-input" />
+                <input type="tel" required value={phone} onChange={(e) => setPhone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
               </ModalField>
             </div>
           </section>
@@ -597,13 +601,13 @@ function ClientModal({
                   <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
                 </ModalField>
                 <ModalField label="Telefone do cônjuge">
-                  <input type="tel" value={spousePhone} onChange={(e) => setSpousePhone(e.target.value)} placeholder="(11) 99999-9999" className="modal-input" />
+                  <input type="tel" value={spousePhone} onChange={(e) => setSpousePhone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="CPF do cônjuge">
-                  <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(e.target.value)} placeholder="000.000.000-00" className="modal-input" />
+                  <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="RG do cônjuge">
-                  <input type="text" value={spouseRg} onChange={(e) => setSpouseRg(e.target.value)} placeholder="00.000.000-0" className="modal-input" />
+                  <input type="text" value={spouseRg} onChange={(e) => setSpouseRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="Endereço do cônjuge (onde mora)" className="md:col-span-2">
                   <input type="text" value={spouseAddress} onChange={(e) => setSpouseAddress(e.target.value)} placeholder="Rua, número, bairro, cidade" className="modal-input" />
@@ -625,7 +629,7 @@ function ClientModal({
                 <input type="text" value={state} onChange={(e) => setState(e.target.value)} placeholder="SP" className="modal-input" />
               </ModalField>
               <ModalField label="CEP" className="md:col-span-2">
-                <input type="text" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="00000-000" className="modal-input" />
+                <input type="text" value={zipCode} onChange={(e) => setZipCode(maskCep(e.target.value))} placeholder="00000-000" className="modal-input" inputMode="numeric" />
               </ModalField>
             </div>
           </section>

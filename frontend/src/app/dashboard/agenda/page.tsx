@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -80,7 +81,7 @@ export default function DashboardAgenda() {
     try {
       await api.post('/agenda', payload);
       qc.invalidateQueries({ queryKey: ['agenda'] });
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
     setModalOpen(false);
   };
 
@@ -88,7 +89,7 @@ export default function DashboardAgenda() {
     try {
       await api.put(`/agenda/${id}`, { status: nextStatus });
       qc.invalidateQueries({ queryKey: ['agenda'] });
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
   };
 
   const formatVisitDate = (isoStr: string) => {

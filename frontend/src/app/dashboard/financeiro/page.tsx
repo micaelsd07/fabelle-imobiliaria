@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { exportCSV, exportPDF, fmtBRL, fmtDate, type ColumnDef } from '@/lib/export';
 import {
@@ -86,7 +87,8 @@ export default function DashboardFinanceiro() {
     try {
       await api.post('/financial', payload);
       refetchAll();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+      toast.success('Lançamento criado');
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
     setModalOpen(false);
   };
 
@@ -95,7 +97,8 @@ export default function DashboardFinanceiro() {
     try {
       await api.del(`/financial/${id}`);
       refetchAll();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+      toast.success('Lançamento excluído');
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
   };
 
   const exportColumns: ColumnDef<Transaction>[] = [
@@ -111,7 +114,7 @@ export default function DashboardFinanceiro() {
 
   const handleExportCSV = () => {
     if (filteredTxs.length === 0) {
-      alert('Nenhum lançamento a exportar.');
+      toast.error('Nenhum lançamento a exportar.');
       return;
     }
     exportCSV(filteredTxs, exportColumns, 'financeiro');
@@ -119,7 +122,7 @@ export default function DashboardFinanceiro() {
 
   const handleExportPDF = () => {
     if (filteredTxs.length === 0) {
-      alert('Nenhum lançamento a exportar.');
+      toast.error('Nenhum lançamento a exportar.');
       return;
     }
     const summary = metrics

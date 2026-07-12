@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -89,7 +90,7 @@ export default function DashboardLeads() {
     try {
       await api.post('/leads', payload);
       refresh();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
     setCreateModalOpen(false);
   };
 
@@ -98,7 +99,7 @@ export default function DashboardLeads() {
       const updated = await api.put<Lead>(`/leads/${leadId}`, { status: nextStatus });
       refresh();
       if (selectedLead?.id === leadId) setSelectedLead(updated);
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
   };
 
   const handleDeleteLead = async (id: string) => {
@@ -107,7 +108,7 @@ export default function DashboardLeads() {
       await api.del(`/leads/${id}`);
       refresh();
       setSelectedLead(null);
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
   };
 
   const handleAddAnnotation = async (e: React.FormEvent) => {

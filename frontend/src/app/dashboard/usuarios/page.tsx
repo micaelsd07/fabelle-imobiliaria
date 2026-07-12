@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -103,7 +104,7 @@ export default function DashboardUsuarios() {
       if (editingId) await api.put(`/users/${editingId}`, payload);
       else await api.post('/users', payload);
       refresh();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
     setModalOpen(false);
   };
 
@@ -116,7 +117,7 @@ export default function DashboardUsuarios() {
     try {
       await api.del(`/users/${id}`);
       refresh();
-    } catch (error) { alert(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
   };
 
   return (
