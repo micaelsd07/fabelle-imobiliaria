@@ -2,6 +2,7 @@
 
 import { Building2, MapPin, User, X } from 'lucide-react';
 import { getPropertyPhotos } from '@/components/PropertyImageCarousel';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import type { Property } from './types';
 import { SPOUSE_REQUIRED_STATUSES } from './types';
 
@@ -16,6 +17,7 @@ const fmtBRL = (n?: number | null) =>
 const emptyDash = (v?: string | null) => (v && v.trim() ? v : '—');
 
 export function PropertyDetails({ property, onClose }: Props) {
+  useLockBodyScroll(!!property);
   if (!property) return null;
   const photos = getPropertyPhotos(property);
   const spouseVisible = property.ownerCivilStatus

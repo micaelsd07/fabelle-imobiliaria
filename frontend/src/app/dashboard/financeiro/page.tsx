@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import { exportCSV, exportPDF, fmtBRL, fmtDate, type ColumnDef } from '@/lib/export';
 import {
   DollarSign,
@@ -71,6 +72,8 @@ export default function DashboardFinanceiro() {
   const [status, setStatus] = useState('PENDENTE');
   const [dueDate, setDueDate] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('PIX');
+
+  useLockBodyScroll(modalOpen);
 
   const refetchAll = () => {
     qc.invalidateQueries({ queryKey: ['financial'] });

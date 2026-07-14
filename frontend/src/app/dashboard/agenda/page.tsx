@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import { useAuth } from '@/context/AuthContext';
 import {
   Calendar as CalendarIcon,
@@ -66,6 +67,8 @@ export default function DashboardAgenda() {
   const [brokerId, setBrokerId] = useState('');
   const [clientId, setClientId] = useState('');
   const [propertyId, setPropertyId] = useState('');
+
+  useLockBodyScroll(modalOpen);
 
   const handleOpenCreate = () => {
     setDateTime('');

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import {
   Briefcase,
   Compass,
@@ -486,6 +487,8 @@ function ClientModal({
     setSpousePhone(initialData?.spousePhone || '');
     setSpouseAddress(initialData?.spouseAddress || '');
   }, [isOpen, initialData, defaultType]);
+
+  useLockBodyScroll(isOpen);
 
   if (!isOpen) return null;
 

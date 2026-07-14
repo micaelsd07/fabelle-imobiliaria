@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, absoluteUrl } from '@/lib/api';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import { useAuth } from '@/context/AuthContext';
 import { generateContractPDF } from './contract-pdf';
 import {
@@ -89,6 +90,8 @@ export default function DashboardContracts() {
   const [signingContractId, setSigningContractId] = useState<string | null>(null);
   const [typedSignatureName, setTypedSignatureName] = useState('');
   const [simulatedSignature, setSimulatedSignature] = useState(false);
+
+  useLockBodyScroll(createModalOpen || signatureModalOpen);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['contracts'] });
 

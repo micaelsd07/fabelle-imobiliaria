@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { maskPhone } from '@/lib/masks';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import { useAuth } from '@/context/AuthContext';
 import {
   UserCheck,
@@ -60,6 +61,8 @@ export default function DashboardUsuarios() {
   const [commissionRate, setCommissionRate] = useState(5.0);
   const [salesMeta, setSalesMeta] = useState(1000000);
   const [active, setActive] = useState(true);
+
+  useLockBodyScroll(modalOpen);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['users'] });
 

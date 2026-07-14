@@ -5,6 +5,7 @@ import { Car, ImagePlus, Sparkles, UploadCloud, User, X } from 'lucide-react';
 import { api, absoluteUrl } from '@/lib/api';
 import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import type { Property } from './types';
 import { CIVIL_STATUS_OPTIONS, SPOUSE_REQUIRED_STATUSES } from './types';
 
@@ -136,6 +137,8 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
       setSpousePhone('');
     }
   }, [property, isOpen]);
+
+  useLockBodyScroll(isOpen);
 
   if (!isOpen) return null;
 

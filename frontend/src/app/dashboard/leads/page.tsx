@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import { useAuth } from '@/context/AuthContext';
 import {
   Plus,
@@ -78,6 +79,8 @@ export default function DashboardLeads() {
   const [leadPhone, setLeadPhone] = useState('');
   const [leadSource, setLeadSource] = useState('SITE');
   const [leadNotes, setLeadNotes] = useState('');
+
+  useLockBodyScroll(createModalOpen || !!selectedLead);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['leads'] });
 
