@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, absoluteUrl } from '@/lib/api';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import { useAuth } from '@/context/AuthContext';
 import { generateContractPDF } from './contract-pdf';
 import {
@@ -400,11 +401,9 @@ export default function DashboardContracts() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground/80 uppercase">Valor (opcional)</label>
-                  <input
-                    type="number"
-                    value={value || ''}
-                    onChange={(e) => setValue(parseFloat(e.target.value) || 0)}
-                    placeholder="7500"
+                  <CurrencyInput
+                    value={value}
+                    onChange={setValue}
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground font-semibold text-primary"
                   />
                 </div>

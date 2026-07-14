@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Car, ImagePlus, Sparkles, UploadCloud, User, X } from 'lucide-react';
 import { api, absoluteUrl } from '@/lib/api';
 import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import type { Property } from './types';
 import { CIVIL_STATUS_OPTIONS, SPOUSE_REQUIRED_STATUSES } from './types';
 
@@ -234,8 +235,8 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
               <Field label="Titulo Comercial" className="md:col-span-2">
                 <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Cobertura Duplex nos Jardins" className="modal-input" />
               </Field>
-              <Field label="Preco (BRL)">
-                <input type="number" required value={price} onChange={(e) => setPrice(parseFloat(e.target.value) || 0)} placeholder="Valor" className="modal-input font-bold text-primary" />
+              <Field label="Preço">
+                <CurrencyInput required value={price} onChange={setPrice} className="modal-input font-bold text-primary" />
               </Field>
             </div>
 

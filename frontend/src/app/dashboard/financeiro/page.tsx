@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import { exportCSV, exportPDF, fmtBRL, fmtDate, type ColumnDef } from '@/lib/export';
 import {
   DollarSign,
@@ -388,12 +389,10 @@ export default function DashboardFinanceiro() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground/80 uppercase">Valor do Lançamento</label>
-                  <input
-                    type="number"
+                  <CurrencyInput
                     required
                     value={amount}
-                    onChange={(e) => setAmount(parseFloat(e.target.value))}
-                    placeholder="1200"
+                    onChange={setAmount}
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground font-semibold text-primary"
                   />
                 </div>

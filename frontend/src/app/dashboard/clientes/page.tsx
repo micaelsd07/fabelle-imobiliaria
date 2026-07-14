@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import {
   Briefcase,
   Compass,
@@ -584,8 +585,8 @@ function ClientModal({
                   <option value="Viuvo(a)">Viúvo(a)</option>
                 </select>
               </ModalField>
-              <ModalField label="Renda mensal (BRL)">
-                <input type="number" value={income} onChange={(e) => setIncome(parseFloat(e.target.value) || 0)} placeholder="Renda" className="modal-input font-semibold text-primary" />
+              <ModalField label="Renda mensal">
+                <CurrencyInput value={income} onChange={setIncome} className="modal-input font-semibold text-primary" />
               </ModalField>
             </div>
           </section>

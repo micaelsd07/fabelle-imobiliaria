@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
+import { maskPhone } from '@/lib/masks';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import { useAuth } from '@/context/AuthContext';
 import {
   UserCheck,
@@ -289,8 +291,9 @@ export default function DashboardUsuarios() {
                   <input
                     type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(maskPhone(e.target.value))}
                     placeholder="(11) 99999-9999"
+                    inputMode="numeric"
                     className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
@@ -321,11 +324,10 @@ export default function DashboardUsuarios() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground/80 uppercase">Meta Vendas (BRL)</label>
-                      <input
-                        type="number"
+                      <label className="text-xs font-bold text-foreground/80 uppercase">Meta de vendas</label>
+                      <CurrencyInput
                         value={salesMeta}
-                        onChange={(e) => setSalesMeta(parseFloat(e.target.value))}
+                        onChange={setSalesMeta}
                         className="w-full bg-secondary/40 border px-3 py-2.5 rounded-lg outline-none text-foreground font-semibold"
                       />
                     </div>
