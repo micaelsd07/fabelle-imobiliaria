@@ -203,7 +203,8 @@ model Contract {
   value           Float
   startDate       DateTime
   endDate         DateTime
-  pdfUrl          String?
+  pdfUrl          String? // Contrato de LOCAÇÃO
+  adminPdfUrl     String? // Contrato de ADMINISTRAÇÃO (ATM)
   signatureStatus String // PENDENTE, ASSINADO
   clientSignature String? // Base64 drawn signature or confirmation
   clientId        String

@@ -98,11 +98,20 @@ export default function DashboardLeads() {
   };
 
   const moveStatus = async (leadId: string, nextStatus: string) => {
+    // Atualização otimista: move o card na hora, sem esperar o servidor.
+    const previous = qc.getQueryData<Lead[]>(['leads']);
+    qc.setQueryData<Lead[]>(['leads'], (old) =>
+      (old ?? []).map((l) => (l.id === leadId ? { ...l, status: nextStatus } : l)),
+    );
+    if (selectedLead?.id === leadId) {
+      setSelectedLead((s) => (s ? { ...s, status: nextStatus } : s));
+    }
     try {
-      const updated = await api.put<Lead>(`/leads/${leadId}`, { status: nextStatus });
-      refresh();
-      if (selectedLead?.id === leadId) setSelectedLead(updated);
-    } catch (error) { toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.'); }
+      await api.put<Lead>(`/leads/${leadId}`, { status: nextStatus });
+    } catch (error) {
+      qc.setQueryData(['leads'], previous); // reverte se falhar
+      toast.error(error instanceof Error ? error.message : 'Erro ao comunicar com o banco de dados.');
+    }
   };
 
   const handleDeleteLead = async (id: string) => {
@@ -177,7 +186,7 @@ export default function DashboardLeads() {
                     <div
                       key={lead.id}
                       onClick={() => setSelectedLead(lead)}
-                      className="bg-card border rounded-xl p-4 shadow-xs hover:shadow-md transition-all cursor-pointer border-l-2 hover:border-l-primary flex flex-col gap-3 group"
+                      className="bg-card border rounded-xl p-4 shadow-xs hover:shadow-md transition-shadow cursor-pointer border-l-2 hover:border-l-primary flex flex-col gap-3 group"
                     >
                       <div className="space-y-1">
                         <span className="text-[9px] bg-secondary px-1.5 py-0.5 rounded font-black text-muted-foreground uppercase tracking-wide">

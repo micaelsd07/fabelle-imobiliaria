@@ -33,6 +33,7 @@ interface Contract {
   startDate: string;
   endDate: string;
   pdfUrl?: string;
+  adminPdfUrl?: string;
   signatureStatus: string; // PENDENTE, ASSINADO
   clientSignature?: string;
   client: { id: string; name: string };
@@ -83,7 +84,8 @@ export default function DashboardContracts() {
   const [endDate, setEndDate] = useState('');
   const [clientId, setClientId] = useState('');
   const [propertyId, setPropertyId] = useState('');
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null); // Locação
+  const [adminPdfFile, setAdminPdfFile] = useState<File | null>(null); // Administração (ATM)
   const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [signatureModalOpen, setSignatureModalOpen] = useState(false);
@@ -100,14 +102,14 @@ export default function DashboardContracts() {
 
   const handleCreateContract = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pdfFile) {
-      toast.error('Selecione o PDF do contrato antes de salvar.');
+    if (!pdfFile && !adminPdfFile) {
+      toast.error('Anexe ao menos um PDF (locação ou administração).');
       return;
     }
     setUploadingPdf(true);
     try {
-      const uploaded = await api.uploadDocument(pdfFile);
-      const pdfUrl = uploaded.url;
+      const pdfUrl = pdfFile ? (await api.uploadDocument(pdfFile)).url : null;
+      const adminPdfUrl = adminPdfFile ? (await api.uploadDocument(adminPdfFile)).url : null;
 
       // Título automático — imóvel + locatário
       const autoTitle = title ||
@@ -123,6 +125,7 @@ export default function DashboardContracts() {
         propertyId,
         brokerId: user?.id,
         pdfUrl,
+        adminPdfUrl,
         signatureStatus: 'ASSINADO',
         status: 'ATIVO',
       };
@@ -130,6 +133,7 @@ export default function DashboardContracts() {
       refresh();
       setCreateModalOpen(false);
       setPdfFile(null);
+      setAdminPdfFile(null);
       setTitle('');
       toast.success('Contrato criado com sucesso');
     } catch (error) {
@@ -278,17 +282,29 @@ export default function DashboardContracts() {
                             Concluído
                           </button>
                         )}
-                        {c.pdfUrl ? (
+                        {c.pdfUrl && (
                           <a
                             href={absoluteUrl(c.pdfUrl)}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1.5 border hover:bg-primary/10 text-primary rounded-lg cursor-pointer"
-                            title="Abrir contrato PDF"
+                            className="px-2 py-1.5 border hover:bg-primary/10 text-primary rounded-lg cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                            title="Abrir contrato de locação"
                           >
-                            <Download className="h-4 w-4" />
+                            <Download className="h-3.5 w-3.5" /> Locação
                           </a>
-                        ) : (
+                        )}
+                        {c.adminPdfUrl && (
+                          <a
+                            href={absoluteUrl(c.adminPdfUrl)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2 py-1.5 border hover:bg-primary/10 text-primary rounded-lg cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                            title="Abrir contrato de administração (ATM)"
+                          >
+                            <Download className="h-3.5 w-3.5" /> ATM
+                          </a>
+                        )}
+                        {!c.pdfUrl && !c.adminPdfUrl && (
                           <button
                             onClick={() => generateContractPDF(c)}
                             className="p-1.5 border hover:bg-secondary rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
@@ -412,38 +428,23 @@ export default function DashboardContracts() {
                 </div>
               </div>
 
-              {/* PDF (obrigatório) */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground/80 uppercase">PDF do contrato <span className="text-red-500">*</span></label>
-                <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 flex items-center gap-3">
-                  <input
-                    id="contract-pdf-input"
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                    onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
-                  />
-                  <label
-                    htmlFor="contract-pdf-input"
-                    className="bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-wider cursor-pointer hover:bg-primary/95 shrink-0"
-                  >
-                    Escolher PDF
-                  </label>
-                  <span className="text-[11px] text-muted-foreground truncate flex-1">
-                    {pdfFile ? pdfFile.name : 'Nenhum arquivo selecionado (até 20 MB)'}
-                  </span>
-                  {pdfFile && (
-                    <button
-                      type="button"
-                      onClick={() => setPdfFile(null)}
-                      className="text-red-500 hover:text-red-700 text-lg leading-none shrink-0"
-                      title="Remover PDF"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              </div>
+              {/* PDF de Locação */}
+              <PdfPicker
+                id="contract-pdf-locacao"
+                label="Contrato de LOCAÇÃO"
+                file={pdfFile}
+                onPick={setPdfFile}
+              />
+
+              {/* PDF de Administração (ATM) */}
+              <PdfPicker
+                id="contract-pdf-admin"
+                label="Contrato de ADMINISTRAÇÃO (ATM)"
+                file={adminPdfFile}
+                onPick={setAdminPdfFile}
+              />
+
+              <p className="text-[10px] text-muted-foreground">Anexe ao menos um dos dois PDFs (até 20 MB cada).</p>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <button
@@ -456,7 +457,7 @@ export default function DashboardContracts() {
                 </button>
                 <button
                   type="submit"
-                  disabled={uploadingPdf || !pdfFile}
+                  disabled={uploadingPdf || (!pdfFile && !adminPdfFile)}
                   className="bg-primary hover:bg-primary/95 text-white font-bold px-6 py-2 rounded-xl shadow cursor-pointer disabled:opacity-60"
                 >
                   {uploadingPdf ? 'Enviando…' : 'Salvar contrato'}
@@ -553,3 +554,49 @@ export default function DashboardContracts() {
 
 
 
+
+function PdfPicker({
+  id,
+  label,
+  file,
+  onPick,
+}: {
+  id: string;
+  label: string;
+  file: File | null;
+  onPick: (f: File | null) => void;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-bold text-foreground/80 uppercase">{label}</label>
+      <div className="rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-4 flex items-center gap-3">
+        <input
+          id={id}
+          type="file"
+          accept="application/pdf"
+          className="hidden"
+          onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+        />
+        <label
+          htmlFor={id}
+          className="bg-primary text-white px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-wider cursor-pointer hover:bg-primary/95 shrink-0"
+        >
+          Escolher PDF
+        </label>
+        <span className="text-[11px] text-muted-foreground truncate flex-1">
+          {file ? file.name : 'Nenhum arquivo selecionado'}
+        </span>
+        {file && (
+          <button
+            type="button"
+            onClick={() => onPick(null)}
+            className="text-red-500 hover:text-red-700 text-lg leading-none shrink-0"
+            title="Remover PDF"
+          >
+            ×
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
