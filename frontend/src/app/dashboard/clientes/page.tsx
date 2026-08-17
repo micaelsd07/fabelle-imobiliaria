@@ -4,9 +4,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
-import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
-import { CurrencyInput } from '@/components/CurrencyInput';
+import { maskCep, maskCpf, maskCurrency, maskPhone, maskRg, parseCurrency } from '@/lib/masks';
 import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
+
+// Aplica máscara no valor do input sem usar estado do React (input não-controlado).
+const maskInPlace = (mask: (v: string) => string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  e.target.value = mask(e.target.value);
+};
 import {
   Briefcase,
   Compass,
@@ -439,90 +443,83 @@ function ClientModal({
   initialData?: Client | null;
   defaultType: ClientType;
 }) {
-  const [clientType, setClientType] = useState<ClientType>(defaultType);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [cpf, setCpf] = useState('');
-  const [rg, setRg] = useState('');
-  const [civilStatus, setCivilStatus] = useState('');
-  const [profession, setProfession] = useState('');
-  const [income, setIncome] = useState(0);
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('SP');
-  const [zipCode, setZipCode] = useState('');
-  const [preferences, setPreferences] = useState('');
-  const [notes, setNotes] = useState('');
-
-  // Cônjuge
-  const [spouseName, setSpouseName] = useState('');
-  const [spouseCpf, setSpouseCpf] = useState('');
-  const [spouseRg, setSpouseRg] = useState('');
-  const [spousePhone, setSpousePhone] = useState('');
-  const [spouseAddress, setSpouseAddress] = useState('');
-
-  const spouseVisible = SPOUSE_REQUIRED_STATUSES.includes(civilStatus);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setClientType(initialData?.clientType || defaultType);
-    setName(initialData?.name || '');
-    setEmail(initialData?.email || '');
-    setPhone(initialData?.phone || '');
-    setCpf(initialData?.cpf || '');
-    setRg(initialData?.rg || '');
-    setCivilStatus(initialData?.civilStatus || '');
-    setProfession(initialData?.profession || '');
-    setIncome(initialData?.income || 0);
-    setAddress(initialData?.address || '');
-    setCity(initialData?.city || '');
-    setState(initialData?.state || 'SP');
-    setZipCode(initialData?.zipCode || '');
-    setPreferences(initialData?.preferences || '');
-    setNotes(initialData?.notes || '');
-    setSpouseName(initialData?.spouseName || '');
-    setSpouseCpf(initialData?.spouseCpf || '');
-    setSpouseRg(initialData?.spouseRg || '');
-    setSpousePhone(initialData?.spousePhone || '');
-    setSpouseAddress(initialData?.spouseAddress || '');
-  }, [isOpen, initialData, defaultType]);
+  // Campos são não-controlados (valor no navegador) — digitar não re-renderiza nada.
+  const [clientType, setClientType] = useState<ClientType>(initialData?.clientType || defaultType);
+  const [spouseVisible, setSpouseVisible] = useState<boolean>(
+    initialData?.civilStatus ? SPOUSE_REQUIRED_STATUSES.includes(initialData.civilStatus) : false,
+  );
 
   useLockBodyScroll(isOpen);
 
+  // Reinicia clientType + visibilidade do cônjuge a cada abertura (componente não desmonta ao fechar).
+  useEffect(() => {
+    if (!isOpen) return;
+    setClientType(initialData?.clientType || defaultType);
+    setSpouseVisible(
+      initialData?.civilStatus ? SPOUSE_REQUIRED_STATUSES.includes(initialData.civilStatus) : false,
+    );
+  }, [isOpen, initialData, defaultType]);
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const d = {
+    name: initialData?.name ?? '',
+    email: initialData?.email ?? '',
+    phone: initialData?.phone ?? '',
+    cpf: initialData?.cpf ?? '',
+    rg: initialData?.rg ?? '',
+    civilStatus: initialData?.civilStatus ?? '',
+    profession: initialData?.profession ?? '',
+    income: initialData?.income ? maskCurrency(initialData.income) : '',
+    address: initialData?.address ?? '',
+    city: initialData?.city ?? '',
+    state: initialData?.state ?? 'SP',
+    zipCode: initialData?.zipCode ?? '',
+    preferences: initialData?.preferences ?? '',
+    notes: initialData?.notes ?? '',
+    spouseName: initialData?.spouseName ?? '',
+    spouseCpf: initialData?.spouseCpf ?? '',
+    spouseRg: initialData?.spouseRg ?? '',
+    spousePhone: initialData?.spousePhone ?? '',
+    spouseAddress: initialData?.spouseAddress ?? '',
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const get = (k: string) => ((fd.get(k) as string | null) ?? '').trim();
+    const civilStatus = get('civilStatus');
+    const spouseOn = SPOUSE_REQUIRED_STATUSES.includes(civilStatus);
+    const phone = get('phone');
+
     onSave({
       clientType,
-      name,
-      email: email || null,
+      name: get('name'),
+      email: get('email') || null,
       phone,
       whatsapp: phone,
-      cpf: cpf || null,
-      rg: rg || null,
+      cpf: get('cpf') || null,
+      rg: get('rg') || null,
       civilStatus,
-      profession,
-      income: parseFloat(income.toString()) || 0,
-      address,
-      city,
-      state,
-      zipCode,
-      preferences,
-      notes,
-      // Cônjuge — só envia dados quando estado civil é casado/união estável
-      spouseName: spouseVisible ? spouseName || null : null,
-      spouseCpf: spouseVisible ? spouseCpf || null : null,
-      spouseRg: spouseVisible ? spouseRg || null : null,
-      spousePhone: spouseVisible ? spousePhone || null : null,
-      spouseAddress: spouseVisible ? spouseAddress || null : null,
+      profession: get('profession'),
+      income: parseCurrency(get('income')).number,
+      address: get('address'),
+      city: get('city'),
+      state: get('state'),
+      zipCode: get('zipCode'),
+      preferences: get('preferences'),
+      notes: get('notes'),
+      spouseName: spouseOn ? get('spouseName') || null : null,
+      spouseCpf: spouseOn ? get('spouseCpf') || null : null,
+      spouseRg: spouseOn ? get('spouseRg') || null : null,
+      spousePhone: spouseOn ? get('spousePhone') || null : null,
+      spouseAddress: spouseOn ? get('spouseAddress') || null : null,
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70">
-      <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col animate-in scale-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70" onClick={onClose}>
+      <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="h-16 flex justify-between items-center border-b px-6 shrink-0">
           <h3 className="font-extrabold text-lg flex items-center gap-2">
             <Compass className="h-5 w-5 text-primary" /> {initialData ? 'Editar Cadastro' : 'Cadastrar Pessoa'}
@@ -555,19 +552,19 @@ function ClientModal({
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Identificacao</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ModalField label="Nome completo">
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Joao Pedro de Oliveira" className="modal-input" />
+                <input type="text" name="name" required defaultValue={d.name} placeholder="Ex: Joao Pedro de Oliveira" className="modal-input" />
               </ModalField>
               <ModalField label="E-mail">
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="exemplo@email.com" className="modal-input" />
+                <input type="email" name="email" defaultValue={d.email} placeholder="exemplo@email.com" className="modal-input" />
               </ModalField>
               <ModalField label="CPF">
-                <input type="text" value={cpf} onChange={(e) => setCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
+                <input type="text" name="cpf" defaultValue={d.cpf} onChange={maskInPlace(maskCpf)} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
               </ModalField>
               <ModalField label="RG">
-                <input type="text" value={rg} onChange={(e) => setRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
+                <input type="text" name="rg" defaultValue={d.rg} onChange={maskInPlace(maskRg)} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
               </ModalField>
               <ModalField label="Telefone / WhatsApp">
-                <input type="tel" required value={phone} onChange={(e) => setPhone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
+                <input type="tel" name="phone" required defaultValue={d.phone} onChange={maskInPlace(maskPhone)} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
               </ModalField>
             </div>
           </section>
@@ -576,10 +573,15 @@ function ClientModal({
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Perfil financeiro</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <ModalField label="Profissao">
-                <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)} placeholder="Ex: Engenheiro" className="modal-input" />
+                <input type="text" name="profession" defaultValue={d.profession} placeholder="Ex: Engenheiro" className="modal-input" />
               </ModalField>
               <ModalField label="Estado civil">
-                <select value={civilStatus} onChange={(e) => setCivilStatus(e.target.value)} className="modal-input">
+                <select
+                  name="civilStatus"
+                  defaultValue={d.civilStatus}
+                  onChange={(e) => setSpouseVisible(SPOUSE_REQUIRED_STATUSES.includes(e.target.value))}
+                  className="modal-input"
+                >
                   <option value="">Selecionar</option>
                   <option value="Solteiro(a)">Solteiro(a)</option>
                   <option value="Casado(a)">Casado(a)</option>
@@ -589,7 +591,7 @@ function ClientModal({
                 </select>
               </ModalField>
               <ModalField label="Renda mensal">
-                <CurrencyInput value={income} onChange={setIncome} className="modal-input font-semibold text-primary" />
+                <input type="text" name="income" defaultValue={d.income} onChange={maskInPlace(maskCurrency)} placeholder="R$ 0,00" className="modal-input font-semibold text-primary" inputMode="numeric" />
               </ModalField>
             </div>
           </section>
@@ -602,19 +604,19 @@ function ClientModal({
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ModalField label="Nome completo do cônjuge">
-                  <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
+                  <input type="text" name="spouseName" defaultValue={d.spouseName} placeholder="Nome completo" className="modal-input" />
                 </ModalField>
                 <ModalField label="Telefone do cônjuge">
-                  <input type="tel" value={spousePhone} onChange={(e) => setSpousePhone(maskPhone(e.target.value))} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
+                  <input type="tel" name="spousePhone" defaultValue={d.spousePhone} onChange={maskInPlace(maskPhone)} placeholder="(11) 99999-9999" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="CPF do cônjuge">
-                  <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
+                  <input type="text" name="spouseCpf" defaultValue={d.spouseCpf} onChange={maskInPlace(maskCpf)} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="RG do cônjuge">
-                  <input type="text" value={spouseRg} onChange={(e) => setSpouseRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
+                  <input type="text" name="spouseRg" defaultValue={d.spouseRg} onChange={maskInPlace(maskRg)} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
                 </ModalField>
                 <ModalField label="Endereço do cônjuge (onde mora)" className="md:col-span-2">
-                  <input type="text" value={spouseAddress} onChange={(e) => setSpouseAddress(e.target.value)} placeholder="Rua, número, bairro, cidade" className="modal-input" />
+                  <input type="text" name="spouseAddress" defaultValue={d.spouseAddress} placeholder="Rua, número, bairro, cidade" className="modal-input" />
                 </ModalField>
               </div>
             </section>
@@ -624,16 +626,16 @@ function ClientModal({
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Endereco</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <ModalField label="Endereco" className="md:col-span-2">
-                <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, numero, complemento" className="modal-input" />
+                <input type="text" name="address" defaultValue={d.address} placeholder="Rua, numero, complemento" className="modal-input" />
               </ModalField>
               <ModalField label="Cidade">
-                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Cidade" className="modal-input" />
+                <input type="text" name="city" defaultValue={d.city} placeholder="Cidade" className="modal-input" />
               </ModalField>
               <ModalField label="UF">
-                <input type="text" value={state} onChange={(e) => setState(e.target.value)} placeholder="SP" className="modal-input" />
+                <input type="text" name="state" defaultValue={d.state} placeholder="SP" className="modal-input" />
               </ModalField>
               <ModalField label="CEP" className="md:col-span-2">
-                <input type="text" value={zipCode} onChange={(e) => setZipCode(maskCep(e.target.value))} placeholder="00000-000" className="modal-input" inputMode="numeric" />
+                <input type="text" name="zipCode" defaultValue={d.zipCode} onChange={maskInPlace(maskCep)} placeholder="00000-000" className="modal-input" inputMode="numeric" />
               </ModalField>
             </div>
           </section>
@@ -641,10 +643,10 @@ function ClientModal({
           <section className="space-y-4">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Interesse imobiliario</h4>
             <ModalField label="Preferencias de imoveis">
-              <input type="text" value={preferences} onChange={(e) => setPreferences(e.target.value)} placeholder="Ex: apartamento, 3 quartos, Pinheiros" className="modal-input" />
+              <input type="text" name="preferences" defaultValue={d.preferences} placeholder="Ex: apartamento, 3 quartos, Pinheiros" className="modal-input" />
             </ModalField>
             <ModalField label="Observacoes">
-              <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas gerais sobre o cadastro..." className="modal-input resize-y" />
+              <textarea rows={3} name="notes" defaultValue={d.notes} placeholder="Notas gerais sobre o cadastro..." className="modal-input resize-y" />
             </ModalField>
           </section>
 

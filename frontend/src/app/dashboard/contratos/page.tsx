@@ -316,8 +316,8 @@ export default function DashboardContracts() {
 
       {/* Contract Upload Modal */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in scale-in duration-300 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setCreateModalOpen(false)}>
+          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-5 max-h-[92vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
                 <FileSignature className="h-5 w-5 text-primary" /> Subir Contrato
@@ -469,8 +469,8 @@ export default function DashboardContracts() {
 
       {/* Simulated digital signature canvas modal */}
       {signatureModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setSignatureModalOpen(false)}>
+          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
                 <FileSignature className="h-5 w-5 text-primary" /> Assinatura Eletrônica Fabelle

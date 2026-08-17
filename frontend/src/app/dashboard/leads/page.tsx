@@ -239,8 +239,8 @@ export default function DashboardLeads() {
 
       {/* Lead Details Modal Drawer */}
       {selectedLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/70">
-          <div className="bg-card text-card-foreground border-l h-screen w-full max-w-xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/70" onClick={() => setSelectedLead(null)}>
+          <div className="bg-card text-card-foreground border-l h-screen w-full max-w-xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="flex justify-between items-start border-b pb-4">
               <div className="space-y-1">
@@ -369,8 +369,8 @@ export default function DashboardLeads() {
 
       {/* Modal Create Lead */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={() => setCreateModalOpen(false)}>
+          <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
                 <Compass className="h-5 w-5 text-primary" /> Adicionar Lead Comercial
