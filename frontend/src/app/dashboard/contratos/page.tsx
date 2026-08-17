@@ -299,9 +299,9 @@ export default function DashboardContracts() {
                             target="_blank"
                             rel="noreferrer"
                             className="px-2 py-1.5 border hover:bg-primary/10 text-primary rounded-lg cursor-pointer flex items-center gap-1 text-[10px] font-bold"
-                            title="Abrir contrato de administração (ATM)"
+                            title="Abrir contrato de administração (ADM)"
                           >
-                            <Download className="h-3.5 w-3.5" /> ATM
+                            <Download className="h-3.5 w-3.5" /> ADM
                           </a>
                         )}
                         {!c.pdfUrl && !c.adminPdfUrl && (
@@ -439,7 +439,7 @@ export default function DashboardContracts() {
               {/* PDF de Administração (ATM) */}
               <PdfPicker
                 id="contract-pdf-admin"
-                label="Contrato de ADMINISTRAÇÃO (ATM)"
+                label="Contrato de ADMINISTRAÇÃO (ADM)"
                 file={adminPdfFile}
                 onPick={setAdminPdfFile}
               />

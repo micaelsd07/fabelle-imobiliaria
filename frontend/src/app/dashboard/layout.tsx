@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { api } from '@/lib/api';
 import {
   Landmark,
   LayoutDashboard,
@@ -28,6 +30,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, logout, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const qc = useQueryClient();
+
+  // Pré-carrega os dados mais usados ao entrar no painel — navegar fica instantâneo.
+  // As chaves batem EXATAMENTE com as usadas em cada página.
+  useEffect(() => {
+    if (!user) return;
+    qc.prefetchQuery({ queryKey: ['properties', {}], queryFn: () => api.get('/properties') });
+    qc.prefetchQuery({ queryKey: ['clients', 'COMPRADOR', ''], queryFn: () => api.get('/clients?type=COMPRADOR&search=') });
+    qc.prefetchQuery({ queryKey: ['leads'], queryFn: () => api.get('/leads') });
+  }, [user, qc]);
   const pathname = usePathname();
 
   const isRoleAuthorized = (allowedRoles?: string[]) => {
@@ -100,13 +112,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Footer / Logout */}
         <div className="p-4 border-t space-y-3">
           <div className="flex items-center gap-3 px-3 py-2 bg-secondary/40 border rounded-xl">
-            {user.photo ? (
-              <img src={user.photo} alt={user.name} className="h-9 w-9 rounded-full object-cover shadow-sm" />
-            ) : (
-              <div className="h-9 w-9 bg-primary/10 text-primary font-bold rounded-full flex items-center justify-center text-sm shadow-sm">
-                <UserIcon className="h-5 w-5" />
-              </div>
-            )}
+            <div className="h-9 w-9 bg-primary/10 text-primary font-bold rounded-full flex items-center justify-center text-sm shadow-sm uppercase">
+              {user.name?.[0] ?? <UserIcon className="h-5 w-5" />}
+            </div>
             <div className="min-w-0 flex-grow">
               <h4 className="text-sm font-extrabold text-foreground truncate">{user.name}</h4>
               <span className="text-[10px] bg-primary/10 text-primary font-black uppercase px-2 py-0.5 rounded-full border">
