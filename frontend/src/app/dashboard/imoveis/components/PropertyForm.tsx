@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Car, ImagePlus, Sparkles, UploadCloud, User, X } from 'lucide-react';
 import { api, absoluteUrl } from '@/lib/api';
-import { maskCep, maskCpf, maskPhone, maskRg } from '@/lib/masks';
-import { CurrencyInput } from '@/components/CurrencyInput';
+import { maskCep, maskCpf, maskCurrency, maskPhone, maskRg, parseCurrency } from '@/lib/masks';
 import { useLockBodyScroll } from '@/lib/useLockBodyScroll';
 import type { Property } from './types';
 import { CIVIL_STATUS_OPTIONS, SPOUSE_REQUIRED_STATUSES } from './types';
@@ -26,121 +25,70 @@ const SAMPLE_URLS = [
   'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&q=80&w=600',
 ];
 
+// Aplica uma máscara no valor do input SEM usar estado do React (input não-controlado).
+const maskInPlace = (mask: (v: string) => string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  e.target.value = mask(e.target.value);
+};
+
 export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState(0);
-  const [type, setType] = useState('VENDA');
-  const [category, setCategory] = useState('APARTAMENTO');
-  const [status, setStatus] = useState('DISPONIVEL');
-  const [areaTotal, setAreaTotal] = useState(100);
-  const [areaConstruida, setAreaConstruida] = useState(80);
-  const [bedrooms, setBedrooms] = useState(2);
-  const [suites, setSuites] = useState(1);
-  const [bathrooms, setBathrooms] = useState(2);
-  const [garageSlots, setGarageSlots] = useState(1);
-  const [coveredGarage, setCoveredGarage] = useState(false);
-  const [address, setAddress] = useState('');
-  const [neighborhood, setNeighborhood] = useState('');
-  const [city, setCity] = useState('Sao Paulo');
-  const [state, setState] = useState('SP');
-  const [zipCode, setZipCode] = useState('');
-  const [features, setFeatures] = useState('Varanda, Piscina, Portaria 24h');
-  const [featured, setFeatured] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState('');
+  // Só o que muda com pouca frequência fica em estado — digitar em texto NÃO re-renderiza.
+  const [selectedImages, setSelectedImages] = useState<string[]>(
+    property ? getExistingImages(property) : [DEFAULT_COVER],
+  );
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-
-  // Locador (dono do imóvel)
-  const [ownerName, setOwnerName] = useState('');
-  const [ownerCpf, setOwnerCpf] = useState('');
-  const [ownerRg, setOwnerRg] = useState('');
-  const [ownerPhone, setOwnerPhone] = useState('');
-  const [ownerEmail, setOwnerEmail] = useState('');
-  const [ownerAddress, setOwnerAddress] = useState('');
-  const [ownerProfession, setOwnerProfession] = useState('');
-  const [ownerCivilStatus, setOwnerCivilStatus] = useState('Solteiro(a)');
-  const [spouseName, setSpouseName] = useState('');
-  const [spouseCpf, setSpouseCpf] = useState('');
-  const [spousePhone, setSpousePhone] = useState('');
-
-  const spouseRequired = SPOUSE_REQUIRED_STATUSES.includes(ownerCivilStatus);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    if (property) {
-      setTitle(property.title);
-      setDescription(property.description);
-      setPrice(property.price);
-      setType(property.type);
-      setCategory(property.category);
-      setStatus(property.status);
-      setAreaTotal(property.areaTotal);
-      setAreaConstruida(property.areaConstruida);
-      setBedrooms(property.bedrooms);
-      setSuites(property.suites);
-      setBathrooms(property.bathrooms);
-      setGarageSlots(property.garageSlots);
-      setCoveredGarage(property.features?.toLowerCase().includes('garagem coberta') ?? false);
-      setAddress(property.address);
-      setNeighborhood(property.neighborhood);
-      setCity(property.city);
-      setState(property.state);
-      setZipCode(property.zipCode);
-      setFeatures(removeCoveredGarage(property.features));
-      setFeatured(property.featured);
-      setSelectedImages(getExistingImages(property));
-      setOwnerName(property.ownerName ?? '');
-      setOwnerCpf(property.ownerCpf ?? '');
-      setOwnerRg(property.ownerRg ?? '');
-      setOwnerPhone(property.ownerPhone ?? '');
-      setOwnerEmail(property.ownerEmail ?? '');
-      setOwnerAddress(property.ownerAddress ?? '');
-      setOwnerProfession(property.ownerProfession ?? '');
-      setOwnerCivilStatus(property.ownerCivilStatus ?? 'Solteiro(a)');
-      setSpouseName(property.spouseName ?? '');
-      setSpouseCpf(property.spouseCpf ?? '');
-      setSpousePhone(property.spousePhone ?? '');
-    } else {
-      setTitle('');
-      setDescription('');
-      setPrice(0);
-      setType('VENDA');
-      setCategory('APARTAMENTO');
-      setStatus('DISPONIVEL');
-      setAreaTotal(100);
-      setAreaConstruida(80);
-      setBedrooms(2);
-      setSuites(1);
-      setBathrooms(2);
-      setGarageSlots(1);
-      setCoveredGarage(false);
-      setAddress('');
-      setNeighborhood('');
-      setCity('Sao Paulo');
-      setState('SP');
-      setZipCode('');
-      setFeatures('Varanda, Piscina, Portaria 24h');
-      setFeatured(false);
-      setSelectedImages([DEFAULT_COVER]);
-      setOwnerName('');
-      setOwnerCpf('');
-      setOwnerRg('');
-      setOwnerPhone('');
-      setOwnerEmail('');
-      setOwnerAddress('');
-      setOwnerProfession('');
-      setOwnerCivilStatus('Solteiro(a)');
-      setSpouseName('');
-      setSpouseCpf('');
-      setSpousePhone('');
-    }
-  }, [property, isOpen]);
+  const [spouseVisible, setSpouseVisible] = useState<boolean>(
+    property?.ownerCivilStatus ? SPOUSE_REQUIRED_STATUSES.includes(property.ownerCivilStatus) : false,
+  );
+  const newImageUrlRef = useRef<HTMLInputElement>(null);
 
   useLockBodyScroll(isOpen);
 
+  // Reinicia galeria + seção do cônjuge sempre que o modal abre (o componente não desmonta ao fechar).
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedImages(property ? getExistingImages(property) : [DEFAULT_COVER]);
+    setSpouseVisible(
+      property?.ownerCivilStatus ? SPOUSE_REQUIRED_STATUSES.includes(property.ownerCivilStatus) : false,
+    );
+  }, [isOpen, property]);
+
   if (!isOpen) return null;
+
+  // Valores iniciais (input não-controlado usa defaultValue; o componente remonta a cada abertura).
+  const d = {
+    title: property?.title ?? '',
+    price: property?.price ? maskCurrency(property.price) : '',
+    type: property?.type ?? 'VENDA',
+    category: property?.category ?? 'APARTAMENTO',
+    status: property?.status ?? 'DISPONIVEL',
+    bedrooms: property?.bedrooms ?? 2,
+    suites: property?.suites ?? 1,
+    bathrooms: property?.bathrooms ?? 2,
+    garageSlots: property?.garageSlots ?? 1,
+    coveredGarage: property?.features?.toLowerCase().includes('garagem coberta') ?? false,
+    areaTotal: property?.areaTotal ?? 100,
+    areaConstruida: property?.areaConstruida ?? 80,
+    features: property ? removeCoveredGarage(property.features) : 'Varanda, Piscina, Portaria 24h',
+    address: property?.address ?? '',
+    neighborhood: property?.neighborhood ?? '',
+    city: property?.city ?? 'Sao Paulo',
+    state: property?.state ?? 'SP',
+    zipCode: property?.zipCode ?? '',
+    description: property?.description ?? '',
+    featured: property?.featured ?? false,
+    ownerName: property?.ownerName ?? '',
+    ownerCivilStatus: property?.ownerCivilStatus ?? 'Solteiro(a)',
+    ownerCpf: property?.ownerCpf ?? '',
+    ownerRg: property?.ownerRg ?? '',
+    ownerPhone: property?.ownerPhone ?? '',
+    ownerEmail: property?.ownerEmail ?? '',
+    ownerAddress: property?.ownerAddress ?? '',
+    ownerProfession: property?.ownerProfession ?? '',
+    spouseName: property?.spouseName ?? '',
+    spouseCpf: property?.spouseCpf ?? '',
+    spousePhone: property?.spousePhone ?? '',
+  };
 
   const appendImages = (images: string[]) => {
     setSelectedImages((current) => {
@@ -173,54 +121,60 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const cleanFeatures = removeCoveredGarage(features)
+    const fd = new FormData(e.currentTarget);
+    const get = (k: string) => ((fd.get(k) as string | null) ?? '').trim();
+
+    const civilStatus = get('ownerCivilStatus');
+    const spouseOn = SPOUSE_REQUIRED_STATUSES.includes(civilStatus);
+    const coveredGarage = fd.get('coveredGarage') === 'on';
+
+    const cleanFeatures = removeCoveredGarage(get('features'))
       .split(',')
       .map((item) => item.trim())
       .filter(Boolean);
     const finalFeatures = coveredGarage ? [...cleanFeatures, 'Garagem coberta'] : cleanFeatures;
 
     onSave({
-      title,
-      description,
-      price: parseFloat(price.toString()),
-      type,
-      category,
-      status,
-      areaTotal: parseFloat(areaTotal.toString()),
-      areaConstruida: parseFloat(areaConstruida.toString()),
-      bedrooms: parseInt(bedrooms.toString()),
-      suites: parseInt(suites.toString()),
-      bathrooms: parseInt(bathrooms.toString()),
-      garageSlots: parseInt(garageSlots.toString()),
-      address,
-      neighborhood,
-      city,
-      state,
-      zipCode,
+      title: get('title'),
+      description: get('description'),
+      price: parseCurrency(get('price')).number,
+      type: get('type'),
+      category: get('category'),
+      status: get('status'),
+      areaTotal: parseFloat(get('areaTotal')) || 0,
+      areaConstruida: parseFloat(get('areaConstruida')) || 0,
+      bedrooms: parseInt(get('bedrooms')) || 0,
+      suites: parseInt(get('suites')) || 0,
+      bathrooms: parseInt(get('bathrooms')) || 0,
+      garageSlots: parseInt(get('garageSlots')) || 0,
+      address: get('address'),
+      neighborhood: get('neighborhood'),
+      city: get('city'),
+      state: get('state'),
+      zipCode: get('zipCode'),
       photos: selectedImages,
       features: finalFeatures.join(', '),
-      featured,
+      featured: fd.get('featured') === 'on',
 
-      ownerName: ownerName || null,
-      ownerCpf: ownerCpf || null,
-      ownerRg: ownerRg || null,
-      ownerPhone: ownerPhone || null,
-      ownerEmail: ownerEmail || null,
-      ownerAddress: ownerAddress || null,
-      ownerProfession: ownerProfession || null,
-      ownerCivilStatus,
-      // Só envia cônjuge se estado civil for casado/união estável, caso contrário zera
-      spouseName: spouseRequired ? spouseName || null : null,
-      spouseCpf: spouseRequired ? spouseCpf || null : null,
-      spousePhone: spouseRequired ? spousePhone || null : null,
+      ownerName: get('ownerName') || null,
+      ownerCpf: get('ownerCpf') || null,
+      ownerRg: get('ownerRg') || null,
+      ownerPhone: get('ownerPhone') || null,
+      ownerEmail: get('ownerEmail') || null,
+      ownerAddress: get('ownerAddress') || null,
+      ownerProfession: get('ownerProfession') || null,
+      ownerCivilStatus: civilStatus,
+      spouseName: spouseOn ? get('spouseName') || null : null,
+      spouseCpf: spouseOn ? get('spouseCpf') || null : null,
+      spousePhone: spouseOn ? get('spousePhone') || null : null,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70">
-      <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col animate-in scale-in duration-200">
+      <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col">
         <div className="h-16 border-b flex items-center justify-between px-6 shrink-0">
           <h3 className="font-extrabold text-base flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -236,22 +190,22 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Dados comerciais</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Titulo Comercial" className="md:col-span-2">
-                <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Cobertura Duplex nos Jardins" className="modal-input" />
+                <input type="text" name="title" required defaultValue={d.title} placeholder="Ex: Cobertura Duplex nos Jardins" className="modal-input" />
               </Field>
               <Field label="Preço">
-                <CurrencyInput required value={price} onChange={setPrice} className="modal-input font-bold text-primary" />
+                <input type="text" name="price" required inputMode="numeric" defaultValue={d.price} onChange={maskInPlace(maskCurrency)} placeholder="R$ 0,00" className="modal-input font-bold text-primary" />
               </Field>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Modalidade">
-                <select value={type} onChange={(e) => setType(e.target.value)} className="modal-input cursor-pointer">
+                <select name="type" defaultValue={d.type} className="modal-input cursor-pointer">
                   <option value="VENDA">Venda</option>
                   <option value="ALUGUEL">Aluguel</option>
                 </select>
               </Field>
               <Field label="Categoria">
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="modal-input cursor-pointer">
+                <select name="category" defaultValue={d.category} className="modal-input cursor-pointer">
                   <option value="APARTAMENTO">Apartamento</option>
                   <option value="CASA">Casa</option>
                   <option value="COBERTURA">Cobertura</option>
@@ -260,7 +214,7 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
                 </select>
               </Field>
               <Field label="Status">
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="modal-input cursor-pointer">
+                <select name="status" defaultValue={d.status} className="modal-input cursor-pointer">
                   <option value="DISPONIVEL">Disponivel</option>
                   <option value="ALUGADO">Alugado</option>
                   <option value="VENDIDO">Vendido</option>
@@ -273,21 +227,21 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
           <section className="space-y-4">
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Caracteristicas</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <NumberInput label="Quartos" value={bedrooms} onChange={setBedrooms} />
-              <NumberInput label="Suites" value={suites} onChange={setSuites} />
-              <NumberInput label="Banheiros" value={bathrooms} onChange={setBathrooms} />
-              <NumberInput label="Vagas Garagem" value={garageSlots} onChange={setGarageSlots} />
+              <NumberInput label="Quartos" name="bedrooms" defaultValue={d.bedrooms} />
+              <NumberInput label="Suites" name="suites" defaultValue={d.suites} />
+              <NumberInput label="Banheiros" name="bathrooms" defaultValue={d.bathrooms} />
+              <NumberInput label="Vagas Garagem" name="garageSlots" defaultValue={d.garageSlots} />
             </div>
             <label className="flex items-center gap-3 rounded-xl border bg-secondary/20 px-4 py-3 text-xs font-bold uppercase text-foreground/85 cursor-pointer">
-              <input type="checkbox" checked={coveredGarage} onChange={(e) => setCoveredGarage(e.target.checked)} className="h-4 w-4 rounded text-primary focus:ring-primary" />
+              <input type="checkbox" name="coveredGarage" defaultChecked={d.coveredGarage} className="h-4 w-4 rounded text-primary focus:ring-primary" />
               <Car className="h-4 w-4 text-primary" />
               Garagem coberta
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <NumberInput label="Area Total (m2)" value={areaTotal} onChange={setAreaTotal} float />
-              <NumberInput label="Area Construida (m2)" value={areaConstruida} onChange={setAreaConstruida} float />
+              <NumberInput label="Area Total (m2)" name="areaTotal" defaultValue={d.areaTotal} float />
+              <NumberInput label="Area Construida (m2)" name="areaConstruida" defaultValue={d.areaConstruida} float />
               <Field label="Diferenciais (virgula)">
-                <input type="text" value={features} onChange={(e) => setFeatures(e.target.value)} placeholder="Varanda, Piscina..." className="modal-input" />
+                <input type="text" name="features" defaultValue={d.features} placeholder="Varanda, Piscina..." className="modal-input" />
               </Field>
             </div>
           </section>
@@ -299,10 +253,15 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Nome completo" className="md:col-span-2">
-                <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Nome do proprietário" className="modal-input" />
+                <input type="text" name="ownerName" defaultValue={d.ownerName} placeholder="Nome do proprietário" className="modal-input" />
               </Field>
               <Field label="Estado civil">
-                <select value={ownerCivilStatus} onChange={(e) => setOwnerCivilStatus(e.target.value)} className="modal-input cursor-pointer">
+                <select
+                  name="ownerCivilStatus"
+                  defaultValue={d.ownerCivilStatus}
+                  onChange={(e) => setSpouseVisible(SPOUSE_REQUIRED_STATUSES.includes(e.target.value))}
+                  className="modal-input cursor-pointer"
+                >
                   {CIVIL_STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
@@ -311,28 +270,28 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Field label="CPF">
-                <input type="text" value={ownerCpf} onChange={(e) => setOwnerCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
+                <input type="text" name="ownerCpf" defaultValue={d.ownerCpf} onChange={maskInPlace(maskCpf)} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="RG">
-                <input type="text" value={ownerRg} onChange={(e) => setOwnerRg(maskRg(e.target.value))} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
+                <input type="text" name="ownerRg" defaultValue={d.ownerRg} onChange={maskInPlace(maskRg)} placeholder="00.000.000-0" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="Telefone / WhatsApp">
-                <input type="text" value={ownerPhone} onChange={(e) => setOwnerPhone(maskPhone(e.target.value))} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
+                <input type="text" name="ownerPhone" defaultValue={d.ownerPhone} onChange={maskInPlace(maskPhone)} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
               </Field>
               <Field label="E-mail">
-                <input type="email" value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} placeholder="proprietario@email.com" className="modal-input" />
+                <input type="email" name="ownerEmail" defaultValue={d.ownerEmail} placeholder="proprietario@email.com" className="modal-input" />
               </Field>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="Endereço do locador">
-                <input type="text" value={ownerAddress} onChange={(e) => setOwnerAddress(e.target.value)} placeholder="Rua, número, cidade" className="modal-input" />
+                <input type="text" name="ownerAddress" defaultValue={d.ownerAddress} placeholder="Rua, número, cidade" className="modal-input" />
               </Field>
               <Field label="Profissão">
-                <input type="text" value={ownerProfession} onChange={(e) => setOwnerProfession(e.target.value)} placeholder="Ex: Empresário" className="modal-input" />
+                <input type="text" name="ownerProfession" defaultValue={d.ownerProfession} placeholder="Ex: Empresário" className="modal-input" />
               </Field>
             </div>
 
-            {spouseRequired && (
+            {spouseVisible && (
               <div className="mt-2 rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-4">
                 <h5 className="text-[10px] font-black uppercase tracking-wider text-primary flex items-center gap-2">
                   <User className="h-3.5 w-3.5" />
@@ -340,13 +299,13 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
                 </h5>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Field label="Nome do cônjuge">
-                    <input type="text" value={spouseName} onChange={(e) => setSpouseName(e.target.value)} placeholder="Nome completo" className="modal-input" />
+                    <input type="text" name="spouseName" defaultValue={d.spouseName} placeholder="Nome completo" className="modal-input" />
                   </Field>
                   <Field label="CPF do cônjuge">
-                    <input type="text" value={spouseCpf} onChange={(e) => setSpouseCpf(maskCpf(e.target.value))} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
+                    <input type="text" name="spouseCpf" defaultValue={d.spouseCpf} onChange={maskInPlace(maskCpf)} placeholder="000.000.000-00" className="modal-input" inputMode="numeric" />
                   </Field>
                   <Field label="Telefone do cônjuge">
-                    <input type="text" value={spousePhone} onChange={(e) => setSpousePhone(maskPhone(e.target.value))} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
+                    <input type="text" name="spousePhone" defaultValue={d.spousePhone} onChange={maskInPlace(maskPhone)} placeholder="(00) 00000-0000" className="modal-input" inputMode="numeric" />
                   </Field>
                 </div>
               </div>
@@ -357,23 +316,23 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
             <h4 className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Endereço do imóvel e descrição</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Endereco Completo" className="md:col-span-2">
-                <input type="text" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, numero, complemento" className="modal-input" />
+                <input type="text" name="address" required defaultValue={d.address} placeholder="Rua, numero, complemento" className="modal-input" />
               </Field>
               <Field label="Bairro">
-                <input type="text" required value={neighborhood} onChange={(e) => setNeighborhood(e.target.value)} placeholder="Bairro" className="modal-input" />
+                <input type="text" name="neighborhood" required defaultValue={d.neighborhood} placeholder="Bairro" className="modal-input" />
               </Field>
               <Field label="Cidade">
-                <input type="text" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Cidade" className="modal-input" />
+                <input type="text" name="city" required defaultValue={d.city} placeholder="Cidade" className="modal-input" />
               </Field>
               <Field label="Estado">
-                <input type="text" required value={state} onChange={(e) => setState(e.target.value)} placeholder="UF" className="modal-input" />
+                <input type="text" name="state" required defaultValue={d.state} placeholder="UF" className="modal-input" />
               </Field>
               <Field label="CEP">
-                <input type="text" value={zipCode} onChange={(e) => setZipCode(maskCep(e.target.value))} placeholder="00000-000" className="modal-input" inputMode="numeric" />
+                <input type="text" name="zipCode" defaultValue={d.zipCode} onChange={maskInPlace(maskCep)} placeholder="00000-000" className="modal-input" inputMode="numeric" />
               </Field>
             </div>
             <Field label="Descricao detalhada">
-              <textarea rows={3} required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Informacoes adicionais..." className="modal-input resize-y" />
+              <textarea rows={3} name="description" required defaultValue={d.description} placeholder="Informacoes adicionais..." className="modal-input resize-y" />
             </Field>
           </section>
 
@@ -404,8 +363,19 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
               <div className="border border-border p-4 rounded-xl flex flex-col justify-between gap-2 bg-secondary/15">
                 <span className="text-[10px] text-muted-foreground uppercase font-bold">Colar links ou usar foto demo</span>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="URL da imagem" value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} className="flex-grow bg-background border border-border px-2.5 py-1.5 rounded-lg outline-none text-[11px] text-foreground" />
-                  <button type="button" disabled={selectedImages.length >= MAX_IMAGES} onClick={() => { if (newImageUrl.trim()) { appendImages(newImageUrl.split(',').map((u) => u.trim()).filter(Boolean)); setNewImageUrl(''); } }} className="bg-primary hover:bg-primary/95 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase cursor-pointer disabled:opacity-40">
+                  <input ref={newImageUrlRef} type="text" placeholder="URL da imagem" className="flex-grow bg-background border border-border px-2.5 py-1.5 rounded-lg outline-none text-[11px] text-foreground" />
+                  <button
+                    type="button"
+                    disabled={selectedImages.length >= MAX_IMAGES}
+                    onClick={() => {
+                      const raw = newImageUrlRef.current?.value.trim();
+                      if (raw) {
+                        appendImages(raw.split(',').map((u) => u.trim()).filter(Boolean));
+                        if (newImageUrlRef.current) newImageUrlRef.current.value = '';
+                      }
+                    }}
+                    className="bg-primary hover:bg-primary/95 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase cursor-pointer disabled:opacity-40"
+                  >
                     Anexar
                   </button>
                 </div>
@@ -428,7 +398,7 @@ export function PropertyForm({ isOpen, property, onClose, onSave }: Props) {
           </section>
 
           <label className="flex items-center gap-3 border-t pt-4">
-            <input type="checkbox" id="modal-featured" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="h-4 w-4 rounded text-primary focus:ring-primary cursor-pointer" />
+            <input type="checkbox" name="featured" defaultChecked={d.featured} className="h-4 w-4 rounded text-primary focus:ring-primary cursor-pointer" />
             <span className="text-foreground/85 uppercase cursor-pointer select-none">Destacar este imovel na homepage do site</span>
           </label>
 
@@ -451,10 +421,10 @@ function Field({ label, className = '', children }: { label: string; className?:
   );
 }
 
-function NumberInput({ label, value, onChange, float }: { label: string; value: number; onChange: (n: number) => void; float?: boolean }) {
+function NumberInput({ label, name, defaultValue, float }: { label: string; name: string; defaultValue: number; float?: boolean }) {
   return (
     <Field label={label}>
-      <input type="number" value={value} onChange={(e) => onChange(float ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0)} className="modal-input" />
+      <input type="number" name={name} defaultValue={defaultValue} step={float ? '0.01' : '1'} className="modal-input" />
     </Field>
   );
 }
@@ -472,4 +442,3 @@ function removeCoveredGarage(value: string) {
     .filter((item) => item && item.toLowerCase() !== 'garagem coberta')
     .join(', ');
 }
-
