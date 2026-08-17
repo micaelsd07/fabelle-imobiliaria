@@ -213,7 +213,11 @@ export default function Home() {
               <motion.div
                 key={property.id}
                 whileHover={{ y: -6 }}
-                className="relative bg-card text-card-foreground border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all flex flex-col group"
+                className="relative"
+              >
+              <Link
+                href={`/imoveis/${property.id}`}
+                className="bg-card text-card-foreground border rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all flex flex-col group cursor-pointer h-full"
               >
                 {/* Image carousel */}
                 <div className="relative h-60 w-full overflow-hidden">
@@ -262,14 +266,12 @@ export default function Home() {
                     <span className="font-black text-xl text-primary">
                       {formatPrice(property.price, property.type)}
                     </span>
-                    <Link
-                      href={`/imoveis/${property.id}`}
-                      className="border border-secondary hover:border-primary/50 text-foreground/80 hover:text-primary px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                    >
+                    <span className="border border-secondary group-hover:border-primary group-hover:bg-primary group-hover:text-white text-foreground/80 px-4 py-2 rounded-lg font-semibold text-sm transition-colors">
                       Ver Detalhes
-                    </Link>
+                    </span>
                   </div>
                 </div>
+              </Link>
               </motion.div>
             ))}
         </div>
@@ -390,46 +392,25 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            {
-              url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=600',
-              likes: '142',
-              comments: '12',
-            },
-            {
-              url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=600',
-              likes: '98',
-              comments: '8',
-            },
-            {
-              url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=600',
-              likes: '215',
-              comments: '19',
-            },
-            {
-              url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=600',
-              likes: '176',
-              comments: '15',
-            },
-          ].map((post, idx) => (
+            '/instagram/foto-1.jpg',
+            '/instagram/foto-2.jpg',
+            '/instagram/foto-3.jpg',
+            '/instagram/foto-4.jpg',
+          ].map((src, idx) => (
             <a
               key={idx}
               href="https://www.instagram.com/fabelleimobiliaria/"
               target="_blank"
               rel="noreferrer"
-              className="relative aspect-square rounded-2xl overflow-hidden group shadow-md border border-neutral-900 block"
+              className="relative aspect-square rounded-2xl overflow-hidden group shadow-md border border-neutral-200 dark:border-neutral-900 block"
             >
               <img
-                src={post.url}
-                alt="Instagram post Fabelle"
+                src={src}
+                alt="Publicação do Instagram da Fabelle Imobiliária"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white font-bold text-sm">
-                <span className="flex items-center gap-1.5">
-                  ❤️ {post.likes}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  💬 {post.comments}
-                </span>
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <Instagram className="h-8 w-8" />
               </div>
             </a>
           ))}

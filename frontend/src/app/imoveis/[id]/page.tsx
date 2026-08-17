@@ -408,7 +408,7 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-8">
             {/* Gallery Component */}
             <div className="space-y-4">
-              <div className="relative h-[480px] w-full border rounded-2xl overflow-hidden shadow-sm bg-black">
+              <div className="relative h-[480px] w-full border rounded-2xl overflow-hidden shadow-sm bg-black group/gallery">
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={activeImageIndex}
@@ -421,6 +421,30 @@ export default function PropertyDetail() {
                     className="w-full h-full object-cover"
                   />
                 </AnimatePresence>
+
+                {imageList.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => goToImage(-1)}
+                      aria-label="Foto anterior"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 text-white border border-white/20 flex items-center justify-center hover:bg-primary transition-colors z-10"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => goToImage(1)}
+                      aria-label="Próxima foto"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-black/60 text-white border border-white/20 flex items-center justify-center hover:bg-primary transition-colors z-10"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+                    <div className="absolute bottom-4 right-4 bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10">
+                      {activeImageIndex + 1} / {imageList.length}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Thumbnails */}

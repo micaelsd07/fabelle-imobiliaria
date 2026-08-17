@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PropertyImageCarousel from '@/components/PropertyImageCarousel';
@@ -512,9 +513,10 @@ function PropertiesCatalogContent() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProperties.map((property) => (
-                  <div
+                  <Link
+                    href={`/imoveis/${property.id}`}
                     key={property.id}
-                    className="bg-card text-card-foreground border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group"
+                    className="bg-card text-card-foreground border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group cursor-pointer"
                   >
                     <div className="relative h-56 w-full overflow-hidden">
                       <PropertyImageCarousel property={property} className="relative h-56 w-full overflow-hidden bg-black" imageClassName="w-full h-full object-cover transition-transform duration-500" />
@@ -572,15 +574,12 @@ function PropertiesCatalogContent() {
                         <span className="font-black text-lg text-primary">
                           {formatPrice(property.price, property.type)}
                         </span>
-                        <a
-                          href={`/imoveis/${property.id}`}
-                          className="bg-secondary hover:bg-primary/10 hover:text-primary text-foreground font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors"
-                        >
+                        <span className="bg-secondary group-hover:bg-primary group-hover:text-white text-foreground font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">
                           Ver detalhes
-                        </a>
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
