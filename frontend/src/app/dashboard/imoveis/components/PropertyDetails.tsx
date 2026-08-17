@@ -25,7 +25,7 @@ export function PropertyDetails({ property, onClose }: Props) {
     : false;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70">
       <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col animate-in scale-in duration-200">
         <div className="h-16 border-b flex items-center justify-between px-6 shrink-0">
           <h3 className="font-extrabold text-base flex items-center gap-2">

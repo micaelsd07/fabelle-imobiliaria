@@ -521,7 +521,7 @@ function ClientModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/70">
       <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col animate-in scale-in duration-200">
         <div className="h-16 flex justify-between items-center border-b px-6 shrink-0">
           <h3 className="font-extrabold text-lg flex items-center gap-2">

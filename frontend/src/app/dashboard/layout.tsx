@@ -178,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar Mobile Overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-0 bg-black/70" onClick={() => setSidebarOpen(false)} />
 
           <aside className="relative flex flex-col w-64 bg-card text-card-foreground shadow-2xl z-10 border-r animate-in slide-in-from-left duration-300">
             {/* Header */}

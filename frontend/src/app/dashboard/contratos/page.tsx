@@ -316,7 +316,7 @@ export default function DashboardContracts() {
 
       {/* Contract Upload Modal */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-5 animate-in scale-in duration-300 max-h-[92vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
@@ -469,7 +469,7 @@ export default function DashboardContracts() {
 
       {/* Simulated digital signature canvas modal */}
       {signatureModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">

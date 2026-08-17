@@ -239,7 +239,7 @@ export default function DashboardLeads() {
 
       {/* Lead Details Modal Drawer */}
       {selectedLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/70">
           <div className="bg-card text-card-foreground border-l h-screen w-full max-w-xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-right duration-300">
             {/* Header */}
             <div className="flex justify-between items-start border-b pb-4">
@@ -369,7 +369,7 @@ export default function DashboardLeads() {
 
       {/* Modal Create Lead */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="bg-card text-card-foreground border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-6 animate-in scale-in duration-300">
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
